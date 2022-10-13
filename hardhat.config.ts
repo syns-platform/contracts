@@ -1,5 +1,7 @@
+import { HardhatConfig, HardhatUserConfig } from 'hardhat/types';
+
 /** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.9',
     settings: {
@@ -10,3 +12,5 @@ module.exports = {
     },
   },
 };
+
+export default config;
