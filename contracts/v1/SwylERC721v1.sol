@@ -7,11 +7,11 @@ import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 
 /**
  *  The `SwylERC721v1` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
- *  It includes all the standard logics from ERC721A & ERC721Base plus:
+ *  It includes all the standard logics from ERC721A & ERC721Base PLUS:
  *      
- *      - Emit an event everytime mintTo() is called
+ *      - Emit event mintedTo() everytime mintTo() is called
  * 
- *      - Records the original author/artist/creator of the NFT
+ *      - Records the original creator of the NFT by adding the original creator's address to a mapping
  */
 contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
@@ -32,7 +32,13 @@ contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
         string memory _symbol,
         address _royaltyRecipient,
         uint128 _royaltyBps
-    ) ERC721Base(_name, _symbol, _royaltyRecipient, _royaltyBps) {
+    ) ERC721Base(
+        _name, 
+        _symbol, 
+        _royaltyRecipient, 
+        _royaltyBps
+        )
+    {
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -71,6 +77,8 @@ contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         SwylERC721v1 Getters
     //////////////////////////////////////////////////////////////*/
+
+    /// @dev Returns originalCreator by tokenId
     function getOriginalCreator(uint _tokenId) view public returns (address) {
         return tokenIdToOriginalCreator[_tokenId];
     }
