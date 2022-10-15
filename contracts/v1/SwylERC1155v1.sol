@@ -55,8 +55,10 @@ contract SwylERC1155v1 is ERC1155Base, PermissionsEnumerable {
     /**
      *  @notice          Lets an authorized address mint NFTs to a recipient.
      *  @dev             - The logic in the `super._canMint()` function determines whether the caller is authorized to mint NFTs.
-     *                   - If `_tokenId == getNewTokenRequiredId()` a new NFT is created at tokenId `nextTokenIdToMint` is minted.
-     *                      Emits event newTokenMintedTo().
+     *                   - If `_tokenId == getNewTokenRequiredId()` 
+     *                          + A new NFT is created at tokenId `nextTokenIdToMint` is minted.
+     *                          + Set the royalty recipient to the address _to
+     *                          + Emits event newTokenMintedTo().
      *                   - If the given `tokenId < nextTokenIdToMint`, then additional supply of an existing NFT is being minted
      *                      on existed token at _tokenId, and the tokenURI is set to be the same. 
      *                      Emits event mintedOnExistedToken().
@@ -70,8 +72,9 @@ contract SwylERC1155v1 is ERC1155Base, PermissionsEnumerable {
         address _to, 
         uint256 _tokenId, 
         string memory _tokenURI, 
-        uint256 _amount
-    ) public override {
+        uint256 _amount,
+        uint256 _bps
+    ) public onlyRole(DEFAULT_ADMIN_ROLE){
         // newTokenRequiredId is the ID that _tokenId must meet to create a new token. Otherwise, more supply are minted on existed tokens.
         uint newTokenRequiredId = getNewTokenRequiredId();
 
@@ -85,6 +88,7 @@ contract SwylERC1155v1 is ERC1155Base, PermissionsEnumerable {
         // originalCreator logic
         if (_tokenId == newTokenRequiredId) { // new token is being created
             tokenIdToOriginalCreator[nextTokenIdToMint] = _to;
+            _setupRoyaltyInfoForToken(nextTokenIdToMint, _to, _bps);
             emit newTokenMintedTo(_to, nextTokenIdToMint, _tokenURI, _amount);
         } else { // more supplies are being minted on an existed token
             emit mintedOnExistedToken(_to, nextTokenIdToMint, _tokenURI, _amount);
