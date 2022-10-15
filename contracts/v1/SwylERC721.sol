@@ -15,9 +15,7 @@ import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 /**
  *  The `SwylERC721` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
  *  It includes all the standard logics from ERC721A & ERC721Base PLUS:
- *      
  *      - Emit event mintedTo() everytime mintTo() is called
- * 
  *      - Records the original creator of the NFT by adding the original creator's address to a mapping
  */
 contract SwylERC721 is ERC721Base, PermissionsEnumerable {

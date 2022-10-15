@@ -15,11 +15,8 @@ import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 /**
  *  The `SwylERC1155` smart contract implements the Thirdweb/ERC1155Base NFT standard.
  *  It includes all the standard logic from ERC1155 PLUS:
- *      
  *      - Emit event newTokenMintedTo (if a new token is minted) everytime mintTo() is called
- *
  *      - Emit event mintedOnExistedToken (if more supply is added to an existed token) everytime mintTo() is called
- * 
  *      - Records the original creator of the NFT when a new token is created by adding the original creator's address to a mapping
  */
 contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
