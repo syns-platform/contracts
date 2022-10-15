@@ -50,12 +50,14 @@ contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
     
     /**
      *  @notice          Lets an authorized address mint an NFT to a recipient. Override @thirdweb/ERC721Base.mintTo()
-     *  @dev             The logic in the `_canMint` function determines whether the caller is authorized to mint NFTs.
+     *  @dev             The logic in the `super._canMint()` function determines whether the caller is authorized to mint NFTs.
+     *                   After finished minting new token, _setupRoyaltyInfoForToken() is called to set the originalCreator as the
+     *                   royalty recipient address
      *
      *  @param _to       The recipient of the NFT to mint.
      *  @param _tokenURI The full metadata URI for the NFT minted.
      */
-    function mintTo(address _to, string memory _tokenURI) public override {
+    function mintTo(address _to, string memory _tokenURI, uint256 _bps) public onlyRole(DEFAULT_ADMIN_ROLE) {
         // specify nextTokenIdToMint
         uint256 nextTokenIdToMint = super.nextTokenIdToMint();
 
@@ -68,6 +70,9 @@ contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
 
         // update tokenIdToOriginalCreator mapping
         tokenIdToOriginalCreator[nextTokenIdToMint] = _to;
+
+        // set roytalty recipient for token
+        _setupRoyaltyInfoForToken(nextTokenIdToMint, _to, _bps);
 
         // emit event everytime mintTo is called
         emit mintedTo(_to, _tokenURI);
