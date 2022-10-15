@@ -1,7 +1,7 @@
 /*
-	@dev: Logan (Nam) Nguyen
-	@Course: SUNY Oswego - CSC 495 - Capstone
-	@Instructor: Professor Bastian Tenbergen
+    @dev: Logan (Nam) Nguyen
+    @Course: SUNY Oswego - CSC 495 - Capstone
+    @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
 */
 
@@ -13,8 +13,8 @@ import "@thirdweb-dev/contracts/base/ERC1155Base.sol";
 import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 
 /**
- *  The `SwylERC721v1` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
- *  It includes all the standard logic from ERC721A & ERC721Base PLUS:
+ *  The `SwylERC1155` smart contract implements the Thirdweb/ERC1155Base NFT standard.
+ *  It includes all the standard logic from ERC1155 PLUS:
  *      
  *      - Emit event newTokenMintedTo (if a new token is minted) everytime mintTo() is called
  *
@@ -22,12 +22,12 @@ import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
  * 
  *      - Records the original creator of the NFT when a new token is created by adding the original creator's address to a mapping
  */
-contract SwylERC1155v1 is ERC1155Base, PermissionsEnumerable {
+contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Variables
     //////////////////////////////////////////////////////////////*/
     // Mapping(s)
-    mapping (uint256 => address) private tokenIdToOriginalCreator;
+            mapping (uint256 => address) private tokenIdToOriginalCreator;
 
     // Event(s)
     event newTokenMintedTo(address _to, uint256 _tokenId, string uri, uint256 amount);

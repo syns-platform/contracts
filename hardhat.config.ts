@@ -1,4 +1,10 @@
-import { HardhatConfig, HardhatUserConfig } from 'hardhat/types';
+/*
+    @dev: Logan (Nam) Nguyen
+    @Course: SUNY Oswego - CSC 495 - Capstone
+    @Instructor: Professor Bastian Tenbergen
+    @Version: 1.0
+*/
+import { HardhatUserConfig } from 'hardhat/types';
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config: HardhatUserConfig = {

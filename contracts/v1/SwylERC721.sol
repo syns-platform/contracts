@@ -1,7 +1,7 @@
 /*
-	@dev: Logan (Nam) Nguyen
-	@Course: SUNY Oswego - CSC 495 - Capstone
-	@Instructor: Professor Bastian Tenbergen
+    @dev: Logan (Nam) Nguyen
+    @Course: SUNY Oswego - CSC 495 - Capstone
+    @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
 */
 
@@ -20,7 +20,7 @@ import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
  * 
  *      - Records the original creator of the NFT by adding the original creator's address to a mapping
  */
-contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
+contract SwylERC721 is ERC721Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Variables
     //////////////////////////////////////////////////////////////*/
