@@ -428,6 +428,11 @@
     "@nomicfoundation/solidity-analyzer-win32-ia32-msvc" "0.1.0"
     "@nomicfoundation/solidity-analyzer-win32-x64-msvc" "0.1.0"
 
+"@openzeppelin/contracts-upgradeable@^4.8.0-rc.1":
+  version "4.8.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.8.0-rc.1.tgz#2f8dfa64ce04f92f7e7409117b82e051bb4d1caa"
+  integrity sha512-yywl0OC8ZGyRLDf0hQqGt2qtm5DZcDf6CggfE+J0bNw2mF6ySaXW6lovAZwXI/frtevUGog4WKNm6EPXtpoh3A==
+
 "@scure/base@~1.1.0":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.1.tgz#ebb651ee52ff84f420097055f4bf46cfba403938"
