@@ -1,4 +1,11 @@
-// SPDX-License-Identifier: Apache-2.0
+/*
+	@dev: Logan (Nam) Nguyen
+	@Course: SUNY Oswego - CSC 495 - Capstone
+	@Instructor: Professor Bastian Tenbergen
+    @Version: 1.0
+*/
+
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 /** EXTERNAL IMPORT */
@@ -6,7 +13,7 @@ import "@thirdweb-dev/contracts/base/ERC721Base.sol";
 import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 
 /**
- *  The `SwylERC721v1` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
+ *  The `SwylERC721` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
  *  It includes all the standard logics from ERC721A & ERC721Base PLUS:
  *      
  *      - Emit event mintedTo() everytime mintTo() is called
@@ -51,7 +58,7 @@ contract SwylERC721v1 is ERC721Base, PermissionsEnumerable {
     /**
      *  @notice          Lets an authorized address mint an NFT to a recipient. Override @thirdweb/ERC721Base.mintTo()
      *  @dev             The logic in the `super._canMint()` function determines whether the caller is authorized to mint NFTs.
-     *                   After finished minting new token, _setupRoyaltyInfoForToken() is called to set the originalCreator as the
+     *                   After finished minting new token, _setupRoyaltyInfoForToken() is called to set the originalCreator as
      *                   royalty recipient address
      *
      *  @param _to       The recipient of the NFT to mint.
