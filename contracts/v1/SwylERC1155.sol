@@ -3,6 +3,7 @@
     @Course: SUNY Oswego - CSC 495 - Capstone
     @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
+    @Hornor: Thirdweb & Openzeppeline
 */
 
 // SPDX-License-Identifier: MIT
