@@ -57,7 +57,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param tokenId                      uint256 - The tokenId on `assetContract` of the NFT to list for sale.
      *
      *  @param startSale                    uint256 - The unix timestamp after which the listing is active.'Active' means NFTs can be bought from the listing.
-     *
+     *                                                  Will be marked at block.timestamp regardless
+     *  
      *  @param listingDuration              uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
      *                                                  or offered. Creator can set this to a time or date they want, or pick `unlimited`
      *                                                  to make the listing `active` until it gets bought or canceled.
@@ -92,6 +93,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param tokenId               uint256 - The tokenId on `assetContract` of the NFT to list for sale.
      *
      *  @param startSale             uint256 - The unix timestamp after which the listing is active. 'Active' means NFTs can be bought from the listing.
+     *                                          Will be marked at block.timestamp regardless
      *
      *  @param endSale               uint256 - No. of seconds after `startSale` which the listing is inactive, i.e. NFTs cannot be bought
      *                                          or offered. Creator can set this to a time or date they want, or pick `unlimited`
@@ -158,9 +160,31 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @dev The NFT `assetContract` only passes the checks whether the listing's creator owns and 
      *       has approved Marketplace to transfer the NFTs to list.
      *
-     *  @param _params The parameters that govern the listing to be created. See DirectListingParameters for more info on how _params should be formed
+     *  @param _assetContract                address - The NFT contract address of the token to list for sale.
+     *
+     *  @param _tokenId                      uint256 - The tokenId on `assetContract` of the NFT to list for sale.
+     *
+     *  
+     *  @param _listingDuration              uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
+     *                                                  or offered. Creator can set this to a time or date they want, or pick `unlimited`
+     *                                                  to make the listing `active` until it gets bought or canceled.
+     *
+     *  @param _quantityToList               uint256 - The quantity of NFT of ID `tokenId` on the given `assetContract` to list. For
+     *                                                  ERC 721 tokens to list for sale, the contract strictly defaults this to `1`,
+     *                                                  Regardless of the value of `quantityToList` passed.
+     *
+     *  @param _currencyToAccept             address - The currency in which a buyer must pay the listing's fixed price to buy the NFT(s).
+     *
+     *  @param _buyoutPricePerToken          uint256 - Price per token listed.
      */
-    function createListing(DirectListingParameters memory _params) external;
+    function createListing(
+        address _assetContract,
+        uint256 _tokenId,
+        uint256 _listingDuration,
+        uint256 _quantityToList,
+        address _currencyToAccept,
+        uint256 _buyoutPricePerToken
+    ) external;
 
 
 
@@ -178,7 +202,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param _currencyToAccept     address - For direct listings: the currency in which a buyer must pay the listing's fixed price
      *                                          to buy the NFT(s). For auctions: the currency in which the bidders must make bids.
      *
-     *  @param _startSale            The unix timestamp after which listing is active. 'Active' means NFTs can be bought from the listing.
+     *  @param _startSale            uint256 - The unix timestamp after which listing is active. 'Active' means NFTs can be bought from the listing.
+     *                               Will be marked at block.timestamp regardless
      *
      *  @param _listingDuration      uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
      *                                          or offered. Creator can set this to a time or date they want, or pick `unlimited`
