@@ -56,6 +56,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *
      *  @param tokenId                      uint256 - The tokenId on `assetContract` of the NFT to list for sale.
      *
+     *  @param startSale                    uint256 - The unix timestamp after which the listing is active.'Active' means NFTs can be bought from the listing.
+     *
      *  @param listingDuration              uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
      *                                                  or offered. Creator can set this to a time or date they want, or pick `unlimited`
      *                                                  to make the listing `active` until it gets bought or canceled.
@@ -71,6 +73,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     struct DirectListingParameters {
         address assetContract;
         uint256 tokenId;
+        uint256 startSale;
         uint256 listingDuration;
         uint256 quantityToList;
         address currencyToAccept;
@@ -88,7 +91,9 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *
      *  @param tokenId               uint256 - The tokenId on `assetContract` of the NFT to list for sale.
      *
-     *  @param listingDuration       uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
+     *  @param startSale             uint256 - The unix timestamp after which the listing is active. 'Active' means NFTs can be bought from the listing.
+     *
+     *  @param endSale               uint256 - No. of seconds after `startSale` which the listing is inactive, i.e. NFTs cannot be bought
      *                                          or offered. Creator can set this to a time or date they want, or pick `unlimited`
      *                                          to make the listing `active` until it gets bought or canceled.
      *
@@ -107,7 +112,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
         address tokenOwner;
         address assetContract;
         uint256 tokenId;
-        uint256 listingDuration;
+        uint256 startSale;
+        uint256 endSale;
         uint256 quantity;
         address currency;
         uint256 buyoutPricePerToken;
@@ -172,6 +178,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param _currencyToAccept     address - For direct listings: the currency in which a buyer must pay the listing's fixed price
      *                                          to buy the NFT(s). For auctions: the currency in which the bidders must make bids.
      *
+     *  @param _startSale            The unix timestamp after which listing is active. 'Active' means NFTs can be bought from the listing.
+     *
      *  @param _listingDuration      uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
      *                                          or offered. Creator can set this to a time or date they want, or pick `unlimited`
      *                                          to make the listing `active` until it gets bought or canceled.
@@ -181,6 +189,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
         uint256 _quantityToList,
         uint256 _buyoutPricePerToken,
         address _currencyToAccept,
+        uint256 _startSale,
         uint256 _listingDuration
     ) external;
 
