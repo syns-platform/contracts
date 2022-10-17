@@ -16,4 +16,5 @@ export const nativeTokenWrapper: Record<number, string> = {
   421613: '0xe39Ab88f8A4777030A534146A9Ca3B52bd5D43A3', // arbitrum goerli
   56: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // binance mainnet
   97: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', // binance testnet
+  256: '115792089237316195423570985008687907853269984665640564039457584007913129639935', // maxi for ERC1155
 };
