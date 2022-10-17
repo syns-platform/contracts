@@ -299,7 +299,6 @@ contract SwylMarketplace is
     function createListing(
         address _assetContract,
         uint256 _tokenId,
-        uint256 _listingDuration,
         uint256 _quantityToList,
         address _currencyToAccept,
         uint256 _buyoutPricePerToken
@@ -330,8 +329,8 @@ contract SwylMarketplace is
             tokenOwner: tokenOwner,
             assetContract: _assetContract,
             tokenId: _tokenId,
-            startSale: block.timestamp, // set to current time
-            endSale: block.timestamp + _listingDuration,
+            startSale: block.timestamp, // set to current time - could be dynamic in future
+            endSale: type(uint256).max, // - could be dynamic in future
             quantity: tokenAmountToList,
             currency: _currencyToAccept,
             buyoutPricePerToken: _buyoutPricePerToken,
@@ -360,10 +359,48 @@ contract SwylMarketplace is
         uint256 _listingId, 
         uint256 _quantityToList, 
         uint256 _buyoutPricePerToken, 
-        address _currencyToAccept, 
-        uint256 _startSale,
-        uint256 _listingDuration
-    ) external override onlyListingOwner(_listingId){}
+        address _currencyToAccept
+    ) external override onlyListingOwner(_listingId){
+
+        // get targetListing
+        Listing memory targetListing = totalListingItems[_listingId];
+
+        // assure the new _quantityToList is a safe quantity (i.e. equals 1 if ERC721 is supported)
+        uint256 safeNewQuantity = getSafeQuantity(targetListing.tokenType, _quantityToList);
+
+        // make sure the new safe _quantityToList > 1
+        require(safeNewQuantity != 0, "QUANTITY");
+
+
+        // update targetListing
+        totalListingItems[_listingId] = Listing({
+            listingId: _listingId,
+            tokenOwner: _msgSender(),
+            assetContract: targetListing.assetContract,
+            tokenId: targetListing.tokenId, 
+            startSale: targetListing.startSale, // could be dynamic in future
+            endSale: type(uint256).max, // could be dynamic in future
+            quantity: safeNewQuantity,
+            currency: _currencyToAccept,
+            buyoutPricePerToken: _buyoutPricePerToken,
+            tokenType: targetListing.tokenType
+        });
+
+
+        // if safeNewQuantity != targetListing.quantity => must re-validate and re-approval of the new quantity of tokens for direct listing 
+        if (safeNewQuantity != targetListing.quantity) {
+            validateOwnershipAndApproval(
+                targetListing.tokenOwner, 
+                targetListing.assetContract, 
+                targetListing.tokenId, 
+                safeNewQuantity, 
+                targetListing.tokenType
+            );
+        }
+
+        // finally, emit the ListingUpdated event
+        emit ListingUpdated(targetListing.listingId, targetListing.tokenOwner);
+    }
 
 
     /**

@@ -163,12 +163,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param _assetContract                address - The NFT contract address of the token to list for sale.
      *
      *  @param _tokenId                      uint256 - The tokenId on `assetContract` of the NFT to list for sale.
-     *
      *  
-     *  @param _listingDuration              uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
-     *                                                  or offered. Creator can set this to a time or date they want, or pick `unlimited`
-     *                                                  to make the listing `active` until it gets bought or canceled.
-     *
      *  @param _quantityToList               uint256 - The quantity of NFT of ID `tokenId` on the given `assetContract` to list. For
      *                                                  ERC 721 tokens to list for sale, the contract strictly defaults this to `1`,
      *                                                  Regardless of the value of `quantityToList` passed.
@@ -180,7 +175,6 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     function createListing(
         address _assetContract,
         uint256 _tokenId,
-        uint256 _listingDuration,
         uint256 _quantityToList,
         address _currencyToAccept,
         uint256 _buyoutPricePerToken
@@ -202,20 +196,12 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @param _currencyToAccept     address - For direct listings: the currency in which a buyer must pay the listing's fixed price
      *                                          to buy the NFT(s). For auctions: the currency in which the bidders must make bids.
      *
-     *  @param _startSale            uint256 - The unix timestamp after which listing is active. 'Active' means NFTs can be bought from the listing.
-     *                               Will be marked at block.timestamp regardless
-     *
-     *  @param _listingDuration      uint256 - No. of seconds after which the listing is inactive, i.e. NFTs cannot be bought
-     *                                          or offered. Creator can set this to a time or date they want, or pick `unlimited`
-     *                                          to make the listing `active` until it gets bought or canceled.
      */
     function updateListing(
         uint256 _listingId,
         uint256 _quantityToList,
         uint256 _buyoutPricePerToken,
-        address _currencyToAccept,
-        uint256 _startSale,
-        uint256 _listingDuration
+        address _currencyToAccept
     ) external;
 
 
