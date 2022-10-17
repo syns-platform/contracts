@@ -16,7 +16,7 @@ import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
 /**
  *  The `ISwylMarketplace` interface implements the Thirdweb/IMarketplace.
  */
-interface IMarketplace is IThirdwebContract, IPlatformFee {
+interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     /// @notice Type of the tokens that can be listed for sale.
     enum TokenType {
         ERC1155,
@@ -24,8 +24,7 @@ interface IMarketplace is IThirdwebContract, IPlatformFee {
     }
 
     /**
-     *  @notice The two types of listings.
-     *          `Direct`: NFTs listed for sale at a fixed price.
+     *  @notice `Direct`: NFTs listed for sale at a fixed price.
      */
     enum ListingType {
         Direct
@@ -153,7 +152,7 @@ interface IMarketplace is IThirdwebContract, IPlatformFee {
      *  @dev The NFT `assetContract` only passes the checks whether the listing's creator owns and 
      *       has approved Marketplace to transfer the NFTs to list.
      *
-     *  @param _params The parameters that govern the listing to be created.
+     *  @param _params The parameters that govern the listing to be created. See DirectListingParameters for more info on how _params should be formed
      */
     function createListing(DirectListingParameters memory _params) external;
 
@@ -195,7 +194,7 @@ interface IMarketplace is IThirdwebContract, IPlatformFee {
 
 
     /**
-     *  @notice Lets someone buy a given quantity of tokens from a direct listing by paying the fixed price.
+     *  @notice Lets someone buy a given quantity of tokens from a direct listing by paying the price.
      *
      *  @param _listingId       uint256 - The uid of the direct lisitng to buy from.
      *  @param _buyer           address - The receiver of the NFT being bought.
@@ -220,7 +219,7 @@ interface IMarketplace is IThirdwebContract, IPlatformFee {
     
 
     /**
-     *  @notice Lets someone make an offer to a direct listing.
+     *  @notice Lets someone make an offer to an existing direct listing.
      *
      *  @dev Each (address, listing ID) pair maps to a single unique offer. E.g. if a buyer makes
      *       two offers to the same direct listing, the last offer is counted as the buyer's
