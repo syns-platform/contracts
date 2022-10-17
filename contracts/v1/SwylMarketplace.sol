@@ -408,7 +408,10 @@ contract SwylMarketplace is
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
     */
-    function cancelDirectListing(uint256 _listingId) external override onlyListingOwner(_listingId){}
+    function cancelDirectListing(uint256 _listingId) external override onlyListingOwner(_listingId){
+        delete totalListingItems[_listingId];
+        emit ListingRemoved(_listingId, _msgSender());
+    }
 
 
     /*///////////////////////////////////////////////////////////////
