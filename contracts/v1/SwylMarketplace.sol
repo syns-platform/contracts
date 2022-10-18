@@ -82,13 +82,13 @@ contract SwylMarketplace is
     //////////////////////////////////////////////////////////////*/
     
     /// @dev Mapping from uid of listing => listing info. All the listings on the marketplace
-    mapping(uint256 => Listing) public totalListingItems;
+    mapping(uint256 => Listing) private totalListingItems;
 
     /// @dev Mapping from uid of a direct listing => offeror address => offer made to the direct listing by the respective offeror.
-    mapping(uint256 => mapping(address => OfferParameters)) public offers;
+    mapping(uint256 => mapping(address => OfferParameters)) private offers;
 
     /// @dev Mapping from msg.sender address => an array of listingIds
-    mapping(address => uint256[]) public ownListings;
+    mapping(address => Listing[]) private ownListings;
 
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
@@ -341,8 +341,8 @@ contract SwylMarketplace is
         totalListingItems[listingId] = newListing;
 
         // adds listing to mapping ownListings to keep track of who owns which listings
-        uint256[] storage listingIdsOwnedByTokenOwner = ownListings[tokenOwner];
-        listingIdsOwnedByTokenOwner.push(newListing.listingId);
+        Listing[] storage listingIdsOwnedByTokenOwner = ownListings[tokenOwner];
+        listingIdsOwnedByTokenOwner.push(newListing);
         ownListings[tokenOwner] = listingIdsOwnedByTokenOwner;
 
         // emit ListingAdded event
@@ -801,10 +801,14 @@ contract SwylMarketplace is
         }
     }
 
+    /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
+    function getListingsOwnedBy(address _listingCreator) public view returns (Listing[] memory) {
+        return ownListings[_listingCreator];
+    }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
-    function getListingsOwnedBy(address _listingCreator) external view returns (uint256[] memory) {
-        return ownListings[_listingCreator];
+    function getListingById(uint256 _listingId) public view returns (Listing memory) {
+        return totalListingItems[_listingId];
     }
 
     /*///////////////////////////////////////////////////////////////
