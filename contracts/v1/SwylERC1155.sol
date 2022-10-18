@@ -73,7 +73,7 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
      *  @param _tokenURI The full metadata URI for the NFTs minted (if a new NFT is being minted).
      *  @param _amount   The amount of the same NFT to mint.
      */
-    function mintTo(
+    function safeMintTo(
         address _to, 
         uint256 _tokenId, 
         string memory _tokenURI, 
