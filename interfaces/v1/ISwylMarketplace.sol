@@ -3,13 +3,13 @@
     @Course: SUNY Oswego - CSC 495 - Capstone
     @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
-    @Honor: Thirdweb/contracts
+    @Honor: Thirdweb
 */
 
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-/** EXTERNAL IMPORT */
+//  ==========  External imports    ==========
 import "@thirdweb-dev/contracts/interfaces/IThirdwebContract.sol";
 import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
 
@@ -17,6 +17,8 @@ import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
  *  The `ISwylMarketplace` interface implements the Thirdweb/IMarketplace.
  */
 interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
+    //  ==========  Enumerables    ==========
+
     /// @notice Type of the tokens that can be listed for sale.
     enum TokenType {
         ERC1155,
@@ -29,6 +31,8 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     enum ListingType {
         Direct
     }
+
+    //  ==========  Struct(s)    ==========
 
     /**
      *  @notice The information related to an offer on a direct listing
@@ -122,6 +126,10 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
         TokenType tokenType;
     }
 
+
+
+    //  ==========  Event(s)    ==========
+
     /// @dev Emitted when a new listing is created.
     event ListingAdded(uint256 indexed listingId, address indexed assetContract, address indexed lister, Listing listing);
 
@@ -156,6 +164,9 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
         uint256 totalOfferAmount,
         address currency
     );
+
+
+    //  ==========  Function(s)    ==========
 
     /**
      *  @notice Lets a token owner list tokens (ERC 721 or ERC 1155) for sale in a direct listing.
