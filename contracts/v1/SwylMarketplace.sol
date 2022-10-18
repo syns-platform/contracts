@@ -369,7 +369,7 @@ contract SwylMarketplace is
         uint256 safeNewQuantity = getSafeQuantity(targetListing.tokenType, _quantityToList);
 
         // make sure the new safe _quantityToList > 1
-        require(safeNewQuantity != 0, "QUANTITY");
+        require(safeNewQuantity != 0, "QUANTITY - must be greater than 0");
 
 
         // update targetListing
@@ -425,11 +425,101 @@ contract SwylMarketplace is
     */
     function buy(
         uint256 _listingId, 
-        address _buyer, 
+        address _receiver, 
         uint256 _quantity, 
         address _currency, 
         uint256 _totalPrice
-    ) external payable override nonReentrant onlyExistingListing(_listingId) {}
+    ) external payable override nonReentrant onlyExistingListing(_listingId) {
+        // get targetListing
+        Listing memory targetListing = totalListingItems[_listingId];
+
+        // get totalPriceToPay = price per token * desired `_quantity`
+        uint256 totalPriceToPay = targetListing.buyoutPricePerToken * _quantity;
+
+        // get buyer address
+        address buyer = _msgSender();
+
+        // check where the settled total price and currency to use are correct
+        require(
+            _currency == targetListing.currency && _totalPrice == totalPriceToPay,
+            "!PRICE - invalid totalprice"
+        );
+
+        executeSale(
+            targetListing,
+            buyer,
+            _receiver,
+            targetListing.currency,
+            totalPriceToPay,
+            _quantity
+        );
+    }
+
+
+    /**
+     *  @notice Executes a sale
+     *
+     *  @param _targetListing               Listing - the target listing which is to be executed
+     *  @param _buyer                       address - The buyer who pays for the execution
+     *  @param _receiver                    address - The receiver of the NFT being bought.
+     *  @param _currency                    address - The currency to pay the price in.
+     *  @param _totalPriceToTransfer        uint256 - The amount of NFTs to buy from the direct listing.
+     *  @param _quantityToTransfer          uint256 - The total price to pay for the tokens being bought.
+     *
+     */
+    function executeSale(
+        Listing memory _targetListing,
+        address _buyer,
+        address _receiver,
+        address _currency,
+        uint256 _totalPriceToTransfer,
+        uint256 _quantityToTransfer
+    ) internal {
+
+        /// @dev validate dirrect listing sale
+        ///       (1) Check if quantity is valid
+        ///       (2) Check if the `_buyer` has enough fund in their bank account
+        validateDirectListingSale(
+            _targetListing,
+            _buyer,
+            _quantityToTransfer,
+            _currency,
+            _totalPriceToTransfer
+        );
+
+        // update _targetListing.quantity
+        _targetListing.quantity -= _quantityToTransfer;
+        totalListingItems[_targetListing.listingId] = _targetListing;
+
+        /// @dev transfer currency
+        ///     (1) to SwylServiceFeeRecipient
+        ///     (2) to original creator (royaltyRecipient)
+        ///     (3) to token owner
+        payout(
+            _buyer, 
+            _targetListing.tokenOwner, 
+            _currency, 
+            _totalPriceToTransfer, 
+            _targetListing
+        );
+
+        // transfer tokens
+        transferListingTokens(
+            _targetListing.tokenOwner,
+            _receiver,
+            _quantityToTransfer,
+            _targetListing
+        );
+
+        emit NewSale(
+            _targetListing.listingId, 
+            _targetListing.assetContract, 
+            _targetListing.tokenOwner, 
+            _receiver, 
+            _quantityToTransfer, 
+            _totalPriceToTransfer);
+
+    }
 
 
     /**
@@ -462,16 +552,26 @@ contract SwylMarketplace is
     /*///////////////////////////////////////////////////////////////
                             Internal functions
     //////////////////////////////////////////////////////////////*/
-
-    /// @dev validate that `_tokenOwner` owns and has approved SwylMarketplace to transfer NFTs
+    /**
+    *  @dev validate that `_tokenOwner` owns and has approved SwylMarketplace to transfer NFTs
+    *
+    *  @param _tokenOwner           address - the owner of the token being validated
+    *
+    *  @param _assetContract        address - the address of the token being validated
+    *
+    *  @param _tokenId              uint256 - the token Id of the token being validated
+    *
+    *  @param _quantity             uint256 - the quantity of the token being validated
+    *
+    *  @param _tokenType            TokenType - ERC721 or ERC1155
+    */
     function validateOwnershipAndApproval(
         address _tokenOwner,
         address _assetContract,
         uint256 _tokenId,
         uint256 _quantity,
         TokenType _tokenType
-    ) internal 
-    view 
+    ) internal view 
     {
         // get SwylMarketplace's address
         address SwylMarketplaceAddress = address(this);
@@ -488,6 +588,184 @@ contract SwylMarketplace is
                 IERC721Upgradeable(_assetContract).isApprovedForAll(_tokenOwner, SwylMarketplaceAddress)); // check if _tokenOwner approves SwylMarketplace
         }
         require(isValid, "!INVALID OWNERSHIP AND APPROVAL");
+    }
+
+
+    /**
+    *  @dev validate dirrect listing sale
+    *           (1) Check if quantity is valid
+    *           (2) Check if the `_buyer` has enough fund in their bank account
+    *
+    *  @param _listing              Listing - the target listing being validated
+    *
+    *  @param _buyer                address - the address who is paying for the sale
+    *
+    *  @param _quantityToBuy        uint256 - the desired quantity to buy
+    *
+    *  @param _currency             address - the address of the currency to buy
+    *
+    *  @param settledTotalPrice     uint256 - the total price to buy
+    */
+    function validateDirectListingSale(
+        Listing memory _listing,
+        address _buyer,
+        uint256 _quantityToBuy,
+        address _currency,
+        uint256 settledTotalPrice
+    ) internal {
+        // Check whether a valid quantity of listed tokens is being bought
+        require(
+            _listing.quantity > 0 && _quantityToBuy > 0 && _quantityToBuy <= _listing.quantity,
+            "!QUANTITY - invalid quantity of tokens"
+        );
+
+        // Check buyer owns and has approved sufficient currency for sale
+        if (_currency == CurrencyTransferLib.NATIVE_TOKEN) { // if currency is native token of a chain
+            require(msg.value == settledTotalPrice, "!FUND - msg.value != total price");
+        } else { // if currency is custom ERC20 token
+            validateERC20BalAndAllowance(_buyer, _currency, settledTotalPrice);
+        }
+
+        // Check whether token owner owns and has approved `quantityToBuy` amount of listing tokens form the listing
+        validateOwnershipAndApproval(
+            _listing.tokenOwner, 
+            _listing.assetContract, 
+            _listing.tokenId, 
+            _quantityToBuy, 
+            _listing.tokenType);
+    }
+
+
+    /**
+    *  @dev validate dirrect listing sale
+    *
+    *  @param _addressToCheck                       address - the address to check against with
+    *
+    *  @param _currency                             address - the address of the currency to check
+    *
+    *  @param _currencyAmountToCheckAgainst         uint256 - the total currency amount to check
+    *
+    *  NOTE Openzepplin/IERC20Upgradeable - allowance api Returns the remaining number of tokens 
+    *                                       that spender (i.e. SwylMarketplace address) will be allowed to spend 
+    *                                       on behalf of owner (i.e. _buyer) through transferFrom. This is zero by default.
+    */
+    function validateERC20BalAndAllowance(
+        address _addressToCheck,
+        address _currency,
+        uint256 _currencyAmountToCheckAgainst
+    ) internal view {
+        require(
+            IERC20Upgradeable(_currency).balanceOf(_addressToCheck) >= _currencyAmountToCheckAgainst &&
+            IERC20Upgradeable(_currency).allowance(_addressToCheck, address(this)) >= _currencyAmountToCheckAgainst,
+            "!BALANCE20 - insufficient balance"
+        );
+    }
+
+    /**
+    *  @dev Pays out the currency
+    *
+    *  @param _payer                        address - the address that pays the price amount
+    *
+    *  @param _payee                        address - the address that receives the price amount
+    *
+    *  @param _currencyToUse                address - the address of the currency passed in
+    *
+    *  @param _totalPayoutAmount            uint256 - the total currency amount to pay
+    *
+    *  @param _listing                      Listing - the target listing to be bought
+    */
+    function payout(
+        address _payer,
+        address _payee,
+        address _currencyToUse,
+        uint256 _totalPayoutAmount,
+        Listing memory _listing
+    ) internal {
+        // calculate platformFeeCut
+        uint256 platformFeeCut = (_totalPayoutAmount * swylServiceFeeBps) / MAX_BPS;
+
+        // royalty info
+        uint256 royaltyCut;
+        address royaltyRecipient;
+
+        // Distribute royalties. 
+        // See Sushiswap's https://github.com/sushiswap/shoyu/blob/master/contracts/base/BaseExchange.sol#L296
+        /*
+        * NOTE: IERC2981 -  Interface for the NFT Royalty Standard.
+        * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+        * support for royalty payments across all NFT marketplaces and ecosystem participants.
+        * 
+        * Resource: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/interfaces/IERC2981.sol
+        */
+        /**
+        * @dev IERC2981Upgradeable(_).royaltyInfo(_,_) returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+        * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+        */
+        try IERC2981Upgradeable(_listing.assetContract).royaltyInfo(_listing.tokenId, _totalPayoutAmount) returns (
+            address royaltyFeeRecipient,
+            uint256 royaltyFeeAmount
+        ) {
+            if (royaltyFeeRecipient != address(0) && royaltyFeeAmount > 0) {
+                require(royaltyFeeAmount + platformFeeCut <= _totalPayoutAmount, "fees exceed the price");
+                royaltyRecipient = royaltyFeeRecipient;
+                royaltyCut = royaltyFeeAmount;
+            }
+        } catch {}
+
+        // Get nativeTokenWrapper address
+        address _nativeTokenWrapper = nativeTokenWrapper;
+
+        // Distribute price to SwylServiceFeeRecipient account
+        CurrencyTransferLib.transferCurrency(
+            _currencyToUse, 
+            _payer, 
+            swylServiceFeeRecipient, 
+            platformFeeCut
+        );
+
+        // Distribute price to original author receipient
+        CurrencyTransferLib.transferCurrencyWithWrapper(
+            _currencyToUse, 
+            _payer, 
+            royaltyRecipient, 
+            royaltyCut, 
+            _nativeTokenWrapper
+        );
+
+        // Distribute price to receiver (i.e. token's owner)
+        CurrencyTransferLib.transferCurrencyWithWrapper(
+            _currencyToUse, 
+            _payer, 
+            _payee, 
+            _totalPayoutAmount - (platformFeeCut + royaltyCut),
+            _nativeTokenWrapper
+        );
+
+        emit ListingPaidOutInformation(royaltyRecipient, royaltyCut, platformFeeCut);
+    }
+
+    /**
+    *  @dev Transfers tokens listed for sale in a direct or auction listing.
+    *
+    *  @param _from                         address - the address of the token's owner
+    *
+    *  @param _to                           address - the address of the buyer
+    *
+    *  @param _quantity                     uint256 - the total quantity of the token being transfered
+    *
+    *  @param _listing                      Listing - the target listing to be bought
+    */
+    function transferListingTokens(
+        address _from,
+        address _to,
+        uint256 _quantity,
+        Listing memory _listing
+    ) internal {
+        if (_listing.tokenType == TokenType.ERC1155) {
+            IERC1155Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, _quantity, "");
+        } else if (_listing.tokenType == TokenType.ERC721) {
+            IERC721Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, "");
+        }
     }
 
 
