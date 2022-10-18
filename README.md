@@ -43,3 +43,8 @@ npm run release
 # or
 yarn release
 ```
+
+
+## Resources / Honors
+ - [Thirdweb](https://thirdweb.com/)
+ - [OpenZeppelin](https://www.openzeppelin.com/)
