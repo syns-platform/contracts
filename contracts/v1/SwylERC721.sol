@@ -63,7 +63,7 @@ contract SwylERC721 is ERC721Base, PermissionsEnumerable {
      *  @param _to       The recipient of the NFT to mint.
      *  @param _tokenURI The full metadata URI for the NFT minted.
      */
-    function mintTo(address _to, string memory _tokenURI, uint256 _bps) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function safeMintTo(address _to, string memory _tokenURI, uint256 _bps) public onlyRole(DEFAULT_ADMIN_ROLE) {
         // specify nextTokenIdToMint
         uint256 nextTokenIdToMint = super.nextTokenIdToMint();
 
