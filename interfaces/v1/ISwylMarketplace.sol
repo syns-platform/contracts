@@ -131,6 +131,9 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     /// @dev Emitted when a listing is cancelled.
     event ListingRemoved(uint256 indexed listingId, address indexed listingCreator);
 
+    /// @dev Emitted when a listing being paid out
+    event ListingPaidOutInformation(address royaltyRecipient, uint256 royaltyAmount ,uint256 SwylServiceFeeCut);
+
     /**
      * @dev Emitted when a buyer buys from a direct listing, or a lister accepts some
      *      buyer's offer to their direct listing.
@@ -217,7 +220,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *  @notice Lets someone buy a given quantity of tokens from a direct listing by paying the price.
      *
      *  @param _listingId       uint256 - The uid of the direct lisitng to buy from.
-     *  @param _buyer           address - The receiver of the NFT being bought.
+     *  @param _receiver        address - The receiver of the NFT being bought.
      *  @param _quantity        uint256 - The amount of NFTs to buy from the direct listing.
      *  @param _currency        address - The currency to pay the price in.
      *  @param _totalPrice      uint256 - The total price to pay for the tokens being bought.
@@ -231,7 +234,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      */
     function buy(
         uint256 _listingId,
-        address _buyer,
+        address _receiver,
         uint256 _quantity,
         address _currency,
         uint256 _totalPrice
