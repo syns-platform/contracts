@@ -552,6 +552,68 @@ contract SwylMarketplace is
     /*///////////////////////////////////////////////////////////////
                             Internal functions
     //////////////////////////////////////////////////////////////*/
+
+    /**
+    *  @dev validate the desired `_quantity` is valid with the logic:
+    *           (1) ERC721 NFTs: should be listed only once
+    *           (2) ERC1155: desired `_quantity` should be in the range from 0 to the total balance owned by `_tokenOwner`
+    *
+    *  @param _tokenOwner           address - the owner of the token being validated
+    *
+    *  @param _assetContract        address - the address of the token being validated
+    *
+    *  @param _tokenId              uint256 - the token Id of the token being validated
+    *
+    *  @param _quantity             uint256 - the quantity of the token being validated
+    *
+    *  @param _tokenType            TokenType - ERC721 or ERC1155
+    */
+    function validateQuantityToList (
+        address _tokenOwner,
+        address _assetContract,
+        uint256 _tokenId,
+        uint256 _quantity,
+        TokenType _tokenType
+    ) internal view returns (bool)
+    {
+        // get the array of Listings owned by `_tokenOwner`
+        Listing[] memory listings = ownListings[_tokenOwner];
+
+        if (_tokenType == TokenType.ERC721) {
+            // looping through listings
+            for (uint i = 0; i < listings.length; i++) {
+
+                /**
+                * @dev if _assetContract and _tokenId is found in the list of ownListings => the listing has been created => FAILING CONDITION
+                */
+                if (listings[i].assetContract == _assetContract && listings[i].tokenId == _tokenId) {
+                    return false;
+                }
+            }
+        } else if (_tokenType == TokenType.ERC1155) {
+            // get ERC1155's total balance owned by the `_tokenOwner`
+            uint256 totalBalanceOwnedByOwner = IERC1155Upgradeable(_assetContract).balanceOf(_tokenOwner, _tokenId);
+
+            // get ERC1155's balance the `_tokenOwner` has left
+            uint256 balanceLeftToList = getBalanceLeftToList(listings, _assetContract, _tokenId, totalBalanceOwnedByOwner);
+
+            /**
+            * @notice if `balanceLeftToList` == `totalBalanceOwnedByOwner` => the token has never been listed before => PASSING CONDITION
+            *         if `balanceLeftToList` < `totalBalanceOwnedByOwner` => the token has been listed before but not 100% balance => PASSING CONDITION
+            *         if `balanceLeftToList` >= `_quantity` => the desired `_quantity` is in the valid area => PASSING CONDITION
+            *         if `balanceLeftToList` < `_quantity` => the desired `_quantity` is in the invalid area => FAILING CONDITION
+            *         if `balanceLeftToList` == 0 => the token has been listed before with 100% balance => FAILING CONDITION
+            */
+            if (balanceLeftToList == 0 || balanceLeftToList < _quantity) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
     /**
     *  @dev validate that `_tokenOwner` owns and has approved SwylMarketplace to transfer NFTs
     *
