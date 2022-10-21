@@ -312,6 +312,11 @@ contract SwylMarketplace is
         TokenType listTokenType = getTokenType(_assetContract);
         uint tokenAmountToList = getSafeQuantity(listTokenType, _quantityToList);
 
+
+        // Check if desired `_quantity` is valid 
+        bool isQuantityValid = validateQuantityToList(tokenOwner, _assetContract, _tokenId, _quantityToList, listTokenType);
+        require(isQuantityValid, "!INVALID QUANTITY - insufficient quantity");
+
         // Check if tokenAmountToList is valid
         require(tokenAmountToList > 0, "INVALID QUANTITY - must be greater than 0");
 
