@@ -773,11 +773,6 @@ contract SwylMarketplace is
                             Getter functions
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Returns the platform fee bps and recipient
-    function getPlatformFeeInfo() external view returns (address, uint16) {
-        return (swylServiceFeeRecipient, uint16(swylServiceFeeBps));
-    }
-
     /// @dev Returns the interface supported by a contract (i.e. to check if token is ERC721 or ERC1155)
     function getTokenType(address _assetContract) internal view returns (TokenType tokenType) {
         if (IERC165Upgradeable(_assetContract).supportsInterface(type(IERC1155Upgradeable).interfaceId)) {
@@ -809,6 +804,11 @@ contract SwylMarketplace is
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
     function getListingById(uint256 _listingId) public view returns (Listing memory) {
         return totalListingItems[_listingId];
+    }
+
+    /// @dev Returns the platform fee recipient and bps
+    function getPlatformFeeInfo() external view returns (address, uint16) {
+        return (swylServiceFeeRecipient, uint16(swylServiceFeeBps));
     }
 
     /*///////////////////////////////////////////////////////////////
