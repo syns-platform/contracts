@@ -828,7 +828,9 @@ contract SwylMarketplace is
     }
 
     /// @dev Sets contract URI for the storefront-level metadata of the contract. 
-    function setContractURI(string calldata _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {}
+    function setContractURI(string calldata _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        contractURI = _uri;
+    }
 
 
     /*///////////////////////////////////////////////////////////////
