@@ -819,7 +819,13 @@ contract SwylMarketplace is
     function setPlatformFeeInfo(
         address _platformFeeRecipient, 
         uint256 _platformFeeBps
-    ) external onlyRole(DEFAULT_ADMIN_ROLE){}
+    ) external onlyRole(DEFAULT_ADMIN_ROLE){
+        require(_platformFeeBps <= MAX_BPS, "!INVALID BPS - must be less than or equal to 10000.");
+        swylServiceFeeBps = uint64 (_platformFeeBps);
+        swylServiceFeeRecipient = _platformFeeRecipient;
+
+        emit PlatformFeeInfoUpdated(_platformFeeRecipient, _platformFeeBps);
+    }
 
     /// @dev Sets contract URI for the storefront-level metadata of the contract. 
     function setContractURI(string calldata _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {}
