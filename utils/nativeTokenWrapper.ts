@@ -3,7 +3,7 @@ export const nativeTokenWrapper: Record<number, string> = {
   4: '0xc778417E063141139Fce010982780140Aa0cD5Ab', // rinkeby
   5: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6', // goerli
   137: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // polygon
-  80001: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889', // Mumbai
+  80001: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889', // WMumbai
   43114: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
   43113: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
   250: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
@@ -17,4 +17,8 @@ export const nativeTokenWrapper: Record<number, string> = {
   56: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // binance mainnet
   97: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd', // binance testnet
   256: '115792089237316195423570985008687907853269984665640564039457584007913129639935', // maxi for ERC1155
+};
+
+export const token: Record<number, string> = {
+  80001: '0x1837B898619d513f2A930e9e50Ef9F40d1dF5875', // Matic
 };
