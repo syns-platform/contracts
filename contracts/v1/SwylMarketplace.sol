@@ -811,6 +811,30 @@ contract SwylMarketplace is
         return (swylServiceFeeRecipient, uint16(swylServiceFeeBps));
     }
 
+    /// @dev Returns the ERC1155 token's balance/quantity that an owner has left to create the listing ()
+    function getBalanceLeftToList(
+        Listing[] memory listings,
+        address _assetContract,
+        uint256 _tokenId,
+        uint256 _totalBalance
+    ) internal pure returns (uint256) {
+
+        // Loop through the array
+        for (uint256 i = 0; i < listings.length; i++) {
+
+            // Find out which listing is the target listing by checking `_assetContract` and `_tokenid`.
+            if (listings[i].assetContract == _assetContract &&
+                listings[i].tokenId == _tokenId
+            ) {
+                // Calculate total balance left to list. Return it right away to save looping time
+                return _totalBalance - listings[i].quantity;
+            }
+        }
+
+        // if it passes the loop, that means that no listing with the same `_assetAddress` and `_tokenId` is created.
+        return _totalBalance;
+    }
+
     /*///////////////////////////////////////////////////////////////
                             Setter functions
     //////////////////////////////////////////////////////////////*/
