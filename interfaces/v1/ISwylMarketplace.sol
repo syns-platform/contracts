@@ -204,7 +204,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
      *
      *  @param _listingId The uid of the lisitng to cancel.
      */
-    function cancelDirectListing(uint256 _listingId) external;
+    function cancelListing(uint256 _listingId) external;
 
 
     /**

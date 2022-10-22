@@ -464,9 +464,20 @@ contract SwylMarketplace is
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
     */
-    function cancelDirectListing(uint256 _listingId) external override onlyListingOwner(_listingId){
+    function cancelListing(uint256 _listingId) external override onlyListingOwner(_listingId){
+        // delete from totalListingItems
         delete totalListingItems[_listingId];
-        /// @TODO: update totalListingsOwnedBy
+
+        // delete from totalListingsOwnedBy
+        Listing[] storage listings = totalListingsOwnedBy[_msgSender()];
+        for (uint256 i = 0; i < listings.length; i++) {
+            if (listings[i].listingId == _listingId) {
+                removeOwnedListing(listings, i);
+                break;
+            }
+        }
+
+        // emit event
         emit ListingRemoved(_listingId, _msgSender());
     }
 
@@ -930,6 +941,16 @@ contract SwylMarketplace is
         }
     }
 
+    event log(uint256);
+    function removeOwnedListing(Listing[] storage listings, uint256 index) internal {
+        for(uint256 i = index; i < listings.length-1; i++) {
+            listings[i] = listings[i+1];
+        }
+        delete listings[listings.length -1];
+        listings.pop();
+        emit log(listings.length);
+        totalListingsOwnedBy[_msgSender()] = listings;
+    }
 
     /*///////////////////////////////////////////////////////////////
                             Getter functions
