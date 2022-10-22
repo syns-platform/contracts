@@ -88,7 +88,7 @@ contract SwylMarketplace is
     mapping(uint256 => mapping(address => OfferParameters)) private offers;
 
     /// @dev Mapping from msg.sender address => an array of listingIds
-    mapping(address => Listing[]) private ownListings;
+    mapping(address => Listing[]) private totalListingsOwnedBy;
 
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
@@ -302,7 +302,7 @@ contract SwylMarketplace is
         address tokenOwner = _msgSender();
         
         // Get the array of listings owned by owner
-        Listing[] storage listingsOwnedByTokenOwner = ownListings[tokenOwner];
+        Listing[] storage listingsOwnedByTokenOwner = totalListingsOwnedBy[tokenOwner];
 
         // Check roles
         require(hasRole(LISTER_ROLE, address(0)) || hasRole(LISTER_ROLE, tokenOwner), "INVALID ROLE - account must have LISTER_ROLE role");
@@ -353,7 +353,7 @@ contract SwylMarketplace is
 
             // update global arrays
             totalListingItems[existingListingId] = existingListing;
-            ownListings[tokenOwner][existingOwnListingIndex] = existingListing;
+            totalListingsOwnedBy[tokenOwner][existingOwnListingIndex] = existingListing;
 
             // emit ListingAppend event
             emit ListingAppend(totalListings, existingListing.assetContract, tokenOwner, existingListing);
@@ -379,9 +379,9 @@ contract SwylMarketplace is
             // adds listing to mapping totalListingItems
             totalListingItems[listingId] = newListing;
 
-            // adds listing to mapping ownListings to keep track of who owns which listings
+            // adds listing to mapping totalListingsOwnedBy to keep track of who owns which listings
             listingsOwnedByTokenOwner.push(newListing);
-            ownListings[tokenOwner] = listingsOwnedByTokenOwner;
+            totalListingsOwnedBy[tokenOwner] = listingsOwnedByTokenOwner;
 
             // emit ListingAdded event
             emit ListingAdded(listingId, newListing.assetContract, tokenOwner, newListing);
@@ -407,25 +407,23 @@ contract SwylMarketplace is
 
         // assure the new _quantityToList is a safe quantity (i.e. equals 1 if ERC721 is supported)
         uint256 safeNewQuantity = getSafeQuantity(targetListing.tokenType, _quantityToList);
-
-        // make sure the new safe _quantityToList > 1
         require(safeNewQuantity != 0, "QUANTITY - must be greater than 0");
 
+        /** @notice Checking quantity. Only for ERC1155 token, 
+        *               (1) if the desired `safeNewQuantity` is greater than `targetListing.quantity`,
+        *               a check needs to be execute to make sure the `extraQuantity` is in the valid area.
+        *
+        *               (2) if the desired `safeNewQuantity` is less than `targetListing.quantity`,
+        *               the desired `safeNewQuantity` is AUTOMATICALLy in the safe zone (i.e. no check needed).
+        */
+        if (targetListing.tokenType == TokenType.ERC1155 && targetListing.quantity < safeNewQuantity) {
+            // calculate the extra quantity
+            uint256 extraQuantity = safeNewQuantity - targetListing.quantity;
 
-        // update targetListing
-        totalListingItems[_listingId] = Listing({
-            listingId: _listingId,
-            tokenOwner: _msgSender(),
-            assetContract: targetListing.assetContract,
-            tokenId: targetListing.tokenId, 
-            startSale: targetListing.startSale, // could be dynamic in future
-            endSale: type(uint256).max, // could be dynamic in future
-            quantity: safeNewQuantity,
-            currency: _currencyToAccept,
-            buyoutPricePerToken: _buyoutPricePerToken,
-            tokenType: targetListing.tokenType
-        });
-
+            // check if the `tokenOwner` has enough token quantity to list.
+            bool sufficientQuantity = validateQuantityToList(_msgSender(), targetListing.assetContract, targetListing.tokenId, extraQuantity, targetListing.tokenType);
+            require(sufficientQuantity, "INVALID QUANTITY - insufficient extra quantity");
+        }
 
         // if safeNewQuantity != targetListing.quantity => must re-validate and re-approval of the new quantity of tokens for direct listing 
         if (safeNewQuantity != targetListing.quantity) {
@@ -436,6 +434,24 @@ contract SwylMarketplace is
                 safeNewQuantity, 
                 targetListing.tokenType
             );
+        }
+
+
+        // update targetListing
+        targetListing.quantity = safeNewQuantity;
+        targetListing.buyoutPricePerToken = _buyoutPricePerToken;
+        targetListing.currency = _currencyToAccept;
+
+        // update global totaltotalListingsOwnedBy
+        totalListingItems[_listingId] = targetListing;
+
+        // update global totalListingsOwnedBy
+        Listing[] memory listings = totalListingsOwnedBy[_msgSender()];
+        for (uint i = 0; i < listings.length; i ++) {
+            if (listings[i].listingId == _listingId) {
+                totalListingsOwnedBy[_msgSender()][i] = targetListing;
+                break;
+            }
         }
 
         // finally, emit the ListingUpdated event
@@ -450,7 +466,7 @@ contract SwylMarketplace is
     */
     function cancelDirectListing(uint256 _listingId) external override onlyListingOwner(_listingId){
         delete totalListingItems[_listingId];
-        /// @TODO: update ownListings
+        /// @TODO: update totalListingsOwnedBy
         emit ListingRemoved(_listingId, _msgSender());
     }
 
@@ -495,7 +511,7 @@ contract SwylMarketplace is
             _quantity
         );
 
-        /// @TODO update ownListings
+        /// @TODO update totalListingsOwnedBy
     }
 
 
@@ -608,7 +624,7 @@ contract SwylMarketplace is
     *
     *  @return _isListed                        bool - true if the token already exists and vice versa
     *
-    *  @return _existingOwnListingIndex         uint256 - the index of the existed listing inside global `ownListings` array
+    *  @return _existingOwnListingIndex         uint256 - the index of the existed listing inside global `totalListingsOwnedBy` array
     *
     *  @return _existingListingId               uint256 - the listingId of the existed listing inside global `totalListingItems` array
     */
@@ -660,14 +676,14 @@ contract SwylMarketplace is
     ) internal view returns (bool)
     {
         // get the array of Listings owned by `_tokenOwner`
-        Listing[] memory listings = ownListings[_tokenOwner];
+        Listing[] memory listings = totalListingsOwnedBy[_tokenOwner];
 
         if (_tokenType == TokenType.ERC721) {
             // looping through listings
             for (uint i = 0; i < listings.length; i++) {
 
                 /**
-                * @dev if _assetContract and _tokenId is found in the list of ownListings => the listing has been created => FAILING CONDITION
+                * @dev if _assetContract and _tokenId is found in the list of totalListingsOwnedBy => the listing has been created => FAILING CONDITION
                 */
                 if (listings[i].assetContract == _assetContract && listings[i].tokenId == _tokenId) {
                     return false;
@@ -941,7 +957,7 @@ contract SwylMarketplace is
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
     function getListingsOwnedBy(address _listingCreator) external view returns (Listing[] memory) {
-        return ownListings[_listingCreator];
+        return totalListingsOwnedBy[_listingCreator];
     }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
