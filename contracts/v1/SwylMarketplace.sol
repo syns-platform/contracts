@@ -302,7 +302,7 @@ contract SwylMarketplace is
         address tokenOwner = _msgSender();
         
         // Get the array of listings owned by owner
-        Listing[] storage listingsOwnedByTokenOwner = totalListingsOwnedBy[tokenOwner];
+        Listing[] memory listingsOwnedByTokenOwner = getListingsOwnedBy(tokenOwner);
 
         // Check roles
         require(hasRole(LISTER_ROLE, address(0)) || hasRole(LISTER_ROLE, tokenOwner), "INVALID ROLE - account must have LISTER_ROLE role");
@@ -326,9 +326,9 @@ contract SwylMarketplace is
 
 
         // check if an NFT has already been listed on Swyl's platform -- only applicable for ERC1155 NFTs
-        (bool isListed, 
-         uint256 existingOwnListingIndex, 
-         uint256 existingListingId
+        (
+            bool isListed, 
+            uint256 existingListingId
         ) = checkTokenAlreadyListed(
                 listingsOwnedByTokenOwner, 
                 _param.assetContract, 
@@ -351,9 +351,8 @@ contract SwylMarketplace is
             // append more `_quantityToList` amount of token to existedToken
             existingListing.quantity += tokenAmountToList;
 
-            // update global arrays
+            // update global array
             totalListingItems[existingListingId] = existingListing;
-            totalListingsOwnedBy[tokenOwner][existingOwnListingIndex] = existingListing;
 
             // emit ListingAppend event
             emit ListingAppend(totalListings, existingListing.assetContract, tokenOwner, existingListing);
@@ -379,10 +378,6 @@ contract SwylMarketplace is
             // adds listing to mapping totalListingItems
             totalListingItems[listingId] = newListing;
 
-            // adds listing to mapping totalListingsOwnedBy to keep track of who owns which listings
-            listingsOwnedByTokenOwner.push(newListing);
-            totalListingsOwnedBy[tokenOwner] = listingsOwnedByTokenOwner;
-
             // emit ListingAdded event
             emit ListingAdded(listingId, newListing.assetContract, tokenOwner, newListing);
         }
@@ -401,7 +396,6 @@ contract SwylMarketplace is
         uint256 _buyoutPricePerToken, 
         address _currencyToAccept
     ) external override onlyListingOwner(_listingId){
-
         // get targetListing
         Listing memory targetListing = totalListingItems[_listingId];
 
@@ -635,8 +629,6 @@ contract SwylMarketplace is
     *
     *  @return _isListed                        bool - true if the token already exists and vice versa
     *
-    *  @return _existingOwnListingIndex         uint256 - the index of the existed listing inside global `totalListingsOwnedBy` array
-    *
     *  @return _existingListingId               uint256 - the listingId of the existed listing inside global `totalListingItems` array
     */
     function checkTokenAlreadyListed(
@@ -647,7 +639,6 @@ contract SwylMarketplace is
         uint256 _listingPrice
     ) public pure returns (
         bool _isListed, 
-        uint256 _existingOwnListingIndex, 
         uint256 _existingListingId
     ) {
         for (uint256 i = 0; i < listings.length; i++) {
@@ -657,10 +648,10 @@ contract SwylMarketplace is
                 listings[i].currency == _currencyToAccept &&
                 listings[i].buyoutPricePerToken == _listingPrice
             ) {
-                return (true, listings[i].listingId, i);
+                return (true, listings[i].listingId);
             }
         }
-        return (false, 0, 0);
+        return (false, 0);
     }
 
     /**
@@ -687,7 +678,7 @@ contract SwylMarketplace is
     ) internal view returns (bool)
     {
         // get the array of Listings owned by `_tokenOwner`
-        Listing[] memory listings = totalListingsOwnedBy[_tokenOwner];
+        Listing[] memory listings = getListingsOwnedBy(_tokenOwner);
 
         if (_tokenType == TokenType.ERC721) {
             // looping through listings
