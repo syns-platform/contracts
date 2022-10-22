@@ -1,9 +1,7 @@
 {
-  "assetContract": "0x79c88Fdf83E010e0Dd363Dc94c6E92750e2BDbf3",
-  "tokenId": 0,
-  "startSale": 1665975241,
-  "listingDuration": 86400,
-  "quantityToList": 1,
-  "currencyToAccept": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  "buyoutPricePerToken": 20000000000000
+  "_assetContract": "0xeaF08B217b32a5979F8DF87652fEc1d9DB8512Be",
+  "_tokenId": 1,
+  "_quantityToList": 123,
+  "_currencyToAccept": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "_buyoutPricePerToken": 20000000000000
 }
