@@ -977,8 +977,31 @@ contract SwylMarketplace is
     }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
-    function getListingsOwnedBy(address _listingCreator) external view returns (Listing[] memory) {
-        return totalListingsOwnedBy[_listingCreator];
+    function getListingsOwnedBy(address _listingCreator) public view returns (Listing[] memory) {
+        uint256 totalAmountListedByOwner = getTotalAmountListingBy(_listingCreator);
+        uint256 currentIndex;
+
+        Listing[] memory listings = new Listing[](totalAmountListedByOwner);
+
+        for (uint256 i = 0; i < totalListings; i++) {
+            if (totalListingItems[i].tokenOwner == _listingCreator) {
+                Listing memory listing = totalListingItems[i];
+                listings[currentIndex] = listing;
+                currentIndex++;
+            }
+        }
+        return listings;
+    }
+
+
+    /// @dev Returns the total listings number an owner has
+    function getTotalAmountListingBy(address _listingCreator) public view returns (uint256 total) {
+        for (uint256 i = 0; i < totalListings; i++) {
+            if (totalListingItems[i].tokenOwner == _listingCreator) {
+                total++;
+            }
+        }
+        return total;
     }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
