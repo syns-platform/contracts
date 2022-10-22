@@ -1,7 +1,7 @@
 {
-  "_assetContract": "0xeaF08B217b32a5979F8DF87652fEc1d9DB8512Be",
-  "_tokenId": 1,
-  "_quantityToList": 123,
-  "_currencyToAccept": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  "_buyoutPricePerToken": 20000000000000
+  "assetContract": "0xeaF08B217b32a5979F8DF87652fEc1d9DB8512Be",
+  "tokenId": 1,
+  "quantityToList": 123,
+  "currencyToAccept": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "buyoutPricePerToken": 20000000000000
 }
