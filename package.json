@@ -1,5 +1,6 @@
 {
   "name": "hardhat-javascript-starter",
+  "license": "MIT",
   "scripts": {
     "build": "npx thirdweb@latest detect",
     "deploy": "npx thirdweb@latest deploy",
