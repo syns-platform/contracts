@@ -292,66 +292,104 @@ contract SwylMarketplace is
     //////////////////////////////////////////////////////////////*/
 
     /**
-    *@dev Lets a token owner create an item to list on the marketplace (listing). 
+    * @dev Lets a token owner create an item to list on the marketplace (listing). 
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
     */ 
-    function createListing(
-        address _assetContract,
-        uint256 _tokenId,
-        uint256 _quantityToList,
-        address _currencyToAccept,
-        uint256 _buyoutPricePerToken
-    ) external override {
-        // Get next listingId to list
-        uint256 listingId = totalListings;
-        totalListings += 1;
+    function createListing(DirectListingParameters memory _param) external override {
+        // // avoid stack too deep exceptions
+        // address assetContract = _assetContract;
+        // uint256 tokenId = _tokenId;
+        // address currencyToAccept = _currencyToAccept;
+        // uint256 buyoutPricePerToken = _buyoutPricePerToken;
 
-        // Get token info
+        // Get tokenOwner
         address tokenOwner = _msgSender();
-        TokenType listTokenType = getTokenType(_assetContract);
-        uint tokenAmountToList = getSafeQuantity(listTokenType, _quantityToList);
+        
+        // Get the array of listings owned by owner
+        Listing[] storage listingIdsOwnedByTokenOwner = ownListings[tokenOwner];
+        
+        // Get token info
+        TokenType listTokenType = getTokenType(_param.assetContract);
 
-
-        // Check if desired `_quantity` is valid 
-        bool isQuantityValid = validateQuantityToList(tokenOwner, _assetContract, _tokenId, _quantityToList, listTokenType);
-        require(isQuantityValid, "!INVALID QUANTITY - insufficient quantity");
 
         // Check if tokenAmountToList is valid
+        uint tokenAmountToList = getSafeQuantity(listTokenType, _param.quantityToList);
         require(tokenAmountToList > 0, "INVALID QUANTITY - must be greater than 0");
+
+        // Check if desired `_quantity` is sufficient.
+        bool isQuantityValid = validateQuantityToList(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
+        require(isQuantityValid, "!INVALID QUANTITY - insufficient quantity");
 
         // Check roles
         require(hasRole(LISTER_ROLE, address(0)) || hasRole(LISTER_ROLE, _msgSender()), "INVALID ROLE - account must have LISTER_ROLE role");
-        require(hasRole(ASSET_ROLE, address(0)) || hasRole(ASSET_ROLE, _assetContract), "INVALID ROLE - account must have ASSET_ROLE role");
+        require(hasRole(ASSET_ROLE, address(0)) || hasRole(ASSET_ROLE, _param.assetContract), "INVALID ROLE - account must have ASSET_ROLE role");
 
 
         // validate token's ownership and approval
-        validateOwnershipAndApproval(tokenOwner, _assetContract, _tokenId, tokenAmountToList, listTokenType);
+        validateOwnershipAndApproval(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
 
-        // create new listing
-        Listing memory newListing = Listing({
-            listingId: listingId,
-            tokenOwner: tokenOwner,
-            assetContract: _assetContract,
-            tokenId: _tokenId,
-            startSale: block.timestamp, // set to current time - could be dynamic in future
-            endSale: type(uint256).max, // - could be dynamic in future
-            quantity: tokenAmountToList,
-            currency: _currencyToAccept,
-            buyoutPricePerToken: _buyoutPricePerToken,
-            tokenType: listTokenType
-        });
 
-        // adds listing to mapping totalListingItems
-        totalListingItems[listingId] = newListing;
+        // check if token already listed -- only applicable for ERC1155 NFTs
+        (bool isListed, uint256 existingOwnListingIndex, uint256 existingListingId, Listing memory existingListing) = checkTokenAlreadyListed(listingIdsOwnedByTokenOwner, _param.assetContract, _param.tokenId);
 
-        // adds listing to mapping ownListings to keep track of who owns which listings
-        Listing[] storage listingIdsOwnedByTokenOwner = ownListings[tokenOwner];
-        listingIdsOwnedByTokenOwner.push(newListing);
-        ownListings[tokenOwner] = listingIdsOwnedByTokenOwner;
 
-        // emit ListingAdded event
-        emit ListingAdded(listingId, newListing.assetContract, tokenOwner, newListing);
+        /**
+        * @NOTE if `isListed` == true && 
+        *          `_currencyToAccept` == existingListing.currency &&
+        *          `_buyoutPricePerToken` == existingListing.buyoutPricePerToken 
+        *       => the ERC1155-token-type-NFT is already listed,
+        *       then this listing should be appended to the listing that has already been created.
+        *       
+        *       if `isListed` == false => the token could be a new ERC721 NFT or ERC1155 NFT that has never been listed before,
+        *       then this listing should be pushed to the global `totalListingItems[]` with a new index.
+        */
+        if (
+            isListed
+            // isListed && 
+            // _param.currencyToAccept == existingListing.currency &&
+            // _param.buyoutPricePerToken == existingListing.buyoutPricePerToken
+            ) 
+        {
+            // append more `_quantityToList` amount of token to existedToken
+            existingListing.quantity += tokenAmountToList;
+
+            // update global arrays
+            totalListingItems[existingListingId] = existingListing;
+            ownListings[tokenOwner][existingOwnListingIndex] = existingListing;
+
+            // emit ListingAppend event
+            emit ListingAppend(totalListings, existingListing.assetContract, tokenOwner, existingListing);
+        } else {
+            // Get next listingId to list
+            uint256 listingId = totalListings;
+            totalListings += 1;
+
+            // create new listing
+            Listing memory newListing = Listing({
+                listingId: listingId,
+                tokenOwner: tokenOwner,
+                assetContract: _param.assetContract,
+                tokenId: _param.tokenId,
+                startSale: block.timestamp, // set to current time - could be dynamic in future
+                endSale: type(uint256).max, // - could be dynamic in future
+                quantity: tokenAmountToList,
+                currency: _param.currencyToAccept,
+                buyoutPricePerToken: _param.buyoutPricePerToken,
+                tokenType: listTokenType
+            });
+
+            // adds listing to mapping totalListingItems
+            totalListingItems[listingId] = newListing;
+
+            // adds listing to mapping ownListings to keep track of who owns which listings
+            listingIdsOwnedByTokenOwner.push(newListing);
+            ownListings[tokenOwner] = listingIdsOwnedByTokenOwner;
+
+            // emit ListingAdded event
+            emit ListingAdded(listingId, newListing.assetContract, tokenOwner, newListing);
+        }
+
     }
 
 
@@ -415,6 +453,7 @@ contract SwylMarketplace is
     */
     function cancelDirectListing(uint256 _listingId) external override onlyListingOwner(_listingId){
         delete totalListingItems[_listingId];
+        /// @TODO: update ownListings
         emit ListingRemoved(_listingId, _msgSender());
     }
 
@@ -458,6 +497,8 @@ contract SwylMarketplace is
             totalPriceToPay,
             _quantity
         );
+
+        /// @TODO update ownListings
     }
 
 
@@ -558,10 +599,60 @@ contract SwylMarketplace is
                             Internal functions
     //////////////////////////////////////////////////////////////*/
 
+    function checkIfListingAlreadyExisted(
+        bool _isListed, 
+        address _currencyToAccept,
+        uint256 _buyoutPricePerToken,
+        Listing memory _existingListing
+        ) internal pure returns (bool) {
+        if (_isListed && 
+            _currencyToAccept == _existingListing.currency &&
+            _buyoutPricePerToken == _existingListing.buyoutPricePerToken) 
+        {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+     /**
+    *  @dev loops through the array os listings owned by _msg.Sender() to find out if the token with `_assetContract` and `_tokenId` is already listed
+    *
+    *  @param listings                      Listing[] - The array of listings owned by _msg.Sender()
+    *
+    *  @param _assetContract                address - the address of the token being validated
+    *
+    *  @param _tokenId                      uint256 - the token Id of the token being validated
+    *
+    *  @return _isListed                    bool - true if the token already exists and vice versa
+    *
+    *  @return _existingOwnListingIndex      uint256 - the index of the existed listing inside global `ownListings` array
+    *
+    *  @return _existingListingId            uint256 - the listingId of the existed listing inside global `totalListingItems` array
+    */
+    function checkTokenAlreadyListed(
+        Listing[] memory listings,
+        address _assetContract,
+        uint256 _tokenId
+    ) public pure returns (bool _isListed, uint256 _existingOwnListingIndex, uint256 _existingListingId, Listing memory _existingListing) {
+        uint256 max = type(uint256).max;
+
+        for (uint256 i = 0; i < listings.length; i++) {
+            // Find out which listing is the target listing by checking `_assetContract` and `_tokenid`.
+            if (listings[i].assetContract == _assetContract &&
+                listings[i].tokenId == _tokenId
+            ) {
+                return (true, listings[i].listingId, i, listings[i]);
+            }
+        }
+        return (false, max, max, listings[max]);
+    }
+
     /**
     *  @dev validate the desired `_quantity` is valid with the logic:
     *           (1) ERC721 NFTs: should be listed only once
-    *           (2) ERC1155: desired `_quantity` should be in the range from 0 to the total balance owned by `_tokenOwner`
+    *           (2) ERC1155 NFTs: can be listed multiple times as long as the desired `_quantity` should be in the range from 0 to the total balance owned by `_tokenOwner`
     *
     *  @param _tokenOwner           address - the owner of the token being validated
     *
