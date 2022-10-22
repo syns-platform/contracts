@@ -116,7 +116,6 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
         uint256 quantity;
         address currency;
         uint256 buyoutPricePerToken;
-        // bool onSale;
         TokenType tokenType;
     }
 

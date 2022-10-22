@@ -292,65 +292,62 @@ contract SwylMarketplace is
     //////////////////////////////////////////////////////////////*/
 
     /**
-    * @dev Lets a token owner create an item to list on the marketplace (listing). 
+    * @dev Lets a token owner create an item to list on the marketplace (listing).
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
     */ 
     function createListing(DirectListingParameters memory _param) external override {
-        // // avoid stack too deep exceptions
-        // address assetContract = _assetContract;
-        // uint256 tokenId = _tokenId;
-        // address currencyToAccept = _currencyToAccept;
-        // uint256 buyoutPricePerToken = _buyoutPricePerToken;
 
         // Get tokenOwner
         address tokenOwner = _msgSender();
         
         // Get the array of listings owned by owner
-        Listing[] storage listingIdsOwnedByTokenOwner = ownListings[tokenOwner];
+        Listing[] storage listingsOwnedByTokenOwner = ownListings[tokenOwner];
+
+        // Check roles
+        require(hasRole(LISTER_ROLE, address(0)) || hasRole(LISTER_ROLE, tokenOwner), "INVALID ROLE - account must have LISTER_ROLE role");
+        require(hasRole(ASSET_ROLE, address(0)) || hasRole(ASSET_ROLE, _param.assetContract), "INVALID ROLE - account must have ASSET_ROLE role");
         
         // Get token info
         TokenType listTokenType = getTokenType(_param.assetContract);
 
 
         // Check if tokenAmountToList is valid
-        uint tokenAmountToList = getSafeQuantity(listTokenType, _param.quantityToList);
+        uint256 tokenAmountToList = getSafeQuantity(listTokenType, _param.quantityToList);
         require(tokenAmountToList > 0, "INVALID QUANTITY - must be greater than 0");
 
-        // Check if desired `_quantity` is sufficient.
-        bool isQuantityValid = validateQuantityToList(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
-        require(isQuantityValid, "!INVALID QUANTITY - insufficient quantity");
-
-        // Check roles
-        require(hasRole(LISTER_ROLE, address(0)) || hasRole(LISTER_ROLE, _msgSender()), "INVALID ROLE - account must have LISTER_ROLE role");
-        require(hasRole(ASSET_ROLE, address(0)) || hasRole(ASSET_ROLE, _param.assetContract), "INVALID ROLE - account must have ASSET_ROLE role");
+        // Check if the `tokenOwner` has enough token quantity to list.
+        bool sufficientQuantity = validateQuantityToList(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
+        require(sufficientQuantity, "INVALID QUANTITY - insufficient quantity");
 
 
         // validate token's ownership and approval
         validateOwnershipAndApproval(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
 
 
-        // check if token already listed -- only applicable for ERC1155 NFTs
-        (bool isListed, uint256 existingOwnListingIndex, uint256 existingListingId, Listing memory existingListing) = checkTokenAlreadyListed(listingIdsOwnedByTokenOwner, _param.assetContract, _param.tokenId);
+        // check if an NFT has already been listed on Swyl's platform -- only applicable for ERC1155 NFTs
+        (bool isListed, 
+         uint256 existingOwnListingIndex, 
+         uint256 existingListingId
+        ) = checkTokenAlreadyListed(
+                listingsOwnedByTokenOwner, 
+                _param.assetContract, 
+                _param.tokenId,
+                _param.currencyToAccept,
+                _param.buyoutPricePerToken
+            );
 
 
         /**
-        * @NOTE if `isListed` == true && 
-        *          `_currencyToAccept` == existingListing.currency &&
-        *          `_buyoutPricePerToken` == existingListing.buyoutPricePerToken 
-        *       => the ERC1155-token-type-NFT is already listed,
+        * @NOTE if `isListed` == true => the ERC1155-token-type-NFT is already listed,
         *       then this listing should be appended to the listing that has already been created.
         *       
         *       if `isListed` == false => the token could be a new ERC721 NFT or ERC1155 NFT that has never been listed before,
         *       then this listing should be pushed to the global `totalListingItems[]` with a new index.
         */
-        if (
-            isListed
-            // isListed && 
-            // _param.currencyToAccept == existingListing.currency &&
-            // _param.buyoutPricePerToken == existingListing.buyoutPricePerToken
-            ) 
-        {
+        if (isListed) {
+            Listing memory existingListing = totalListingItems[existingListingId];
+            
             // append more `_quantityToList` amount of token to existedToken
             existingListing.quantity += tokenAmountToList;
 
@@ -372,7 +369,7 @@ contract SwylMarketplace is
                 assetContract: _param.assetContract,
                 tokenId: _param.tokenId,
                 startSale: block.timestamp, // set to current time - could be dynamic in future
-                endSale: type(uint256).max, // - could be dynamic in future
+                endSale: type(uint256).max, // set to infinity - could be dynamic in future
                 quantity: tokenAmountToList,
                 currency: _param.currencyToAccept,
                 buyoutPricePerToken: _param.buyoutPricePerToken,
@@ -383,8 +380,8 @@ contract SwylMarketplace is
             totalListingItems[listingId] = newListing;
 
             // adds listing to mapping ownListings to keep track of who owns which listings
-            listingIdsOwnedByTokenOwner.push(newListing);
-            ownListings[tokenOwner] = listingIdsOwnedByTokenOwner;
+            listingsOwnedByTokenOwner.push(newListing);
+            ownListings[tokenOwner] = listingsOwnedByTokenOwner;
 
             // emit ListingAdded event
             emit ListingAdded(listingId, newListing.assetContract, tokenOwner, newListing);
@@ -599,54 +596,44 @@ contract SwylMarketplace is
                             Internal functions
     //////////////////////////////////////////////////////////////*/
 
-    function checkIfListingAlreadyExisted(
-        bool _isListed, 
-        address _currencyToAccept,
-        uint256 _buyoutPricePerToken,
-        Listing memory _existingListing
-        ) internal pure returns (bool) {
-        if (_isListed && 
-            _currencyToAccept == _existingListing.currency &&
-            _buyoutPricePerToken == _existingListing.buyoutPricePerToken) 
-        {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
      /**
-    *  @dev loops through the array os listings owned by _msg.Sender() to find out if the token with `_assetContract` and `_tokenId` is already listed
+    *  @dev loops through the array os listings owned by _msg.Sender() to find out if the token 
+    *       with `_assetContract`, `_tokenId`, `_currencyToAccept`, and `_listingPrice` is already listed.
     *
-    *  @param listings                      Listing[] - The array of listings owned by _msg.Sender()
+    *  @param listings                          Listing[] - The array of listings owned by _msg.Sender()
     *
-    *  @param _assetContract                address - the address of the token being validated
+    *  @param _assetContract                    address - the address of the token being validated
     *
-    *  @param _tokenId                      uint256 - the token Id of the token being validated
+    *  @param _tokenId                          uint256 - the token Id of the token being validated
     *
-    *  @return _isListed                    bool - true if the token already exists and vice versa
+    *  @return _isListed                        bool - true if the token already exists and vice versa
     *
-    *  @return _existingOwnListingIndex      uint256 - the index of the existed listing inside global `ownListings` array
+    *  @return _existingOwnListingIndex         uint256 - the index of the existed listing inside global `ownListings` array
     *
-    *  @return _existingListingId            uint256 - the listingId of the existed listing inside global `totalListingItems` array
+    *  @return _existingListingId               uint256 - the listingId of the existed listing inside global `totalListingItems` array
     */
     function checkTokenAlreadyListed(
         Listing[] memory listings,
         address _assetContract,
-        uint256 _tokenId
-    ) public pure returns (bool _isListed, uint256 _existingOwnListingIndex, uint256 _existingListingId, Listing memory _existingListing) {
-        uint256 max = type(uint256).max;
-
+        uint256 _tokenId,
+        address _currencyToAccept,
+        uint256 _listingPrice
+    ) public pure returns (
+        bool _isListed, 
+        uint256 _existingOwnListingIndex, 
+        uint256 _existingListingId
+    ) {
         for (uint256 i = 0; i < listings.length; i++) {
-            // Find out which listing is the target listing by checking `_assetContract` and `_tokenid`.
+            // Finding target existing listing
             if (listings[i].assetContract == _assetContract &&
-                listings[i].tokenId == _tokenId
+                listings[i].tokenId == _tokenId &&
+                listings[i].currency == _currencyToAccept &&
+                listings[i].buyoutPricePerToken == _listingPrice
             ) {
-                return (true, listings[i].listingId, i, listings[i]);
+                return (true, listings[i].listingId, i);
             }
         }
-        return (false, max, max, listings[max]);
+        return (false, 0, 0);
     }
 
     /**
@@ -700,11 +687,12 @@ contract SwylMarketplace is
             *         if `balanceLeftToList` < `_quantity` => the desired `_quantity` is in the invalid area => FAILING CONDITION
             *         if `balanceLeftToList` == 0 => the token has been listed before with 100% balance => FAILING CONDITION
             */
-            if (balanceLeftToList == 0 || balanceLeftToList < _quantity) {
+            if (balanceLeftToList < _quantity || balanceLeftToList == 0) {
                 return false;
             }
         }
 
+        // return true if all conditions pass
         return true;
     }
 
@@ -943,10 +931,7 @@ contract SwylMarketplace is
     }
 
     /// @dev Enforces quantity == 1 if tokenType is TokenType.ERC721
-    function getSafeQuantity(
-        TokenType _tokenType, 
-        uint256 _quantityToCheck
-    ) internal pure returns (uint256 safeQuantity) {
+    function getSafeQuantity(TokenType _tokenType, uint256 _quantityToCheck) internal pure returns (uint256 safeQuantity) {
         if (_quantityToCheck == 0) {
             safeQuantity = 0;
         } else {
@@ -955,12 +940,12 @@ contract SwylMarketplace is
     }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
-    function getListingsOwnedBy(address _listingCreator) public view returns (Listing[] memory) {
+    function getListingsOwnedBy(address _listingCreator) external view returns (Listing[] memory) {
         return ownListings[_listingCreator];
     }
 
     /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
-    function getListingById(uint256 _listingId) public view returns (Listing memory) {
+    function getListingById(uint256 _listingId) external view returns (Listing memory) {
         return totalListingItems[_listingId];
     }
 
@@ -975,7 +960,10 @@ contract SwylMarketplace is
         address _assetContract,
         uint256 _tokenId,
         uint256 _totalBalance
-    ) internal pure returns (uint256) {
+    ) public pure returns (uint256 totalBalanceLeft) {
+
+        // assigned totalBalanceLeft
+        totalBalanceLeft = _totalBalance;
 
         // Loop through the array
         for (uint256 i = 0; i < listings.length; i++) {
@@ -984,13 +972,12 @@ contract SwylMarketplace is
             if (listings[i].assetContract == _assetContract &&
                 listings[i].tokenId == _tokenId
             ) {
-                // Calculate total balance left to list. Return it right away to save looping time
-                return _totalBalance - listings[i].quantity;
+                // Calculate `totalBalanceLeft` every time a listing has the same `assetContract` and `tokenId` with `_assetContract` and `_tokenId`
+                totalBalanceLeft -= listings[i].quantity;
             }
         }
 
-        // if it passes the loop, that means that no listing with the same `_assetAddress` and `_tokenId` is created.
-        return _totalBalance;
+        return totalBalanceLeft;
     }
 
     /*///////////////////////////////////////////////////////////////
