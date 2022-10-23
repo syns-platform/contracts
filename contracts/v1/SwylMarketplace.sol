@@ -91,7 +91,7 @@ contract SwylMarketplace is
                                 Modifiers
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks whether caller is the listing creator.
+    /// @dev Checks whether the caller is the listing's creator.
     modifier onlyListingOwner(uint256 _listingId) {
         require(totalListingItems[_listingId].tokenOwner == _msgSender(), "!OWNER");
         _; // move on
@@ -137,9 +137,9 @@ contract SwylMarketplace is
         swylServiceFeeBps = uint64(_platformFeeBps);
 
         // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account in this case
-        _setupRole(LISTER_ROLE, address(0)); // grant LISTER_ROLE to address 0x000
-        _setupRole(ASSET_ROLE, address(0)); // grant ASSET_ROLE to address 0x000
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account
+        _setupRole(LISTER_ROLE, address(0));
+        _setupRole(ASSET_ROLE, address(0)); 
     }
 
     /**
