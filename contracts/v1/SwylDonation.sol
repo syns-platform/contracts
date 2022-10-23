@@ -357,6 +357,12 @@ contract SwylDonation is
         return total;
     }
 
+
+    /// @dev Returns donation by donationId
+    function getDonationById(uint256 _donationId) public view returns(Donation memory) {
+        return totalDonations[_donationId];
+    }
+
     /*///////////////////////////////////////////////////////////////
                             Utilities
     //////////////////////////////////////////////////////////////*/
