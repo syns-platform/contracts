@@ -66,9 +66,9 @@ contract SwylMarketplace is
     uint64 private swylServiceFeeBps;
 
     /// @dev Only lister role holders can create listings, when listings are restricted by lister address.
-    bytes32 private constant LISTER_ROLE = keccak256("LISTER_ROLE");
+    bytes32 public constant LISTER_ROLE = keccak256("LISTER_ROLE");
     /// @dev Only assets from NFT contracts with asset role can be listed, when listings are restricted by asset address.
-    bytes32 private constant ASSET_ROLE = keccak256("ASSET_ROLE");
+    bytes32 public constant ASSET_ROLE = keccak256("ASSET_ROLE");
 
     /// @dev The address of the native token wrapper contract i.e. 0xeee.
     address private immutable nativeTokenWrapper;
@@ -285,7 +285,7 @@ contract SwylMarketplace is
 
 
     /*///////////////////////////////////////////////////////////////
-                Listing (create-update-delete) logic
+                Listing (create-update-cancel) logic
     //////////////////////////////////////////////////////////////*/
 
     /**
@@ -780,7 +780,7 @@ contract SwylMarketplace is
 
 
     /**
-    *  @dev validate dirrect listing sale
+    *  @dev validate ERC20 tokens
     *
     *  @param _addressToCheck                       address - the address to check against with
     *
@@ -788,7 +788,7 @@ contract SwylMarketplace is
     *
     *  @param _currencyAmountToCheckAgainst         uint256 - the total currency amount to check
     *
-    *  NOTE Openzepplin/IERC20Upgradeable - allowance api Returns the remaining number of tokens 
+    *  NOTE Openzepplin/IERC20Upgradeable - allowance api returns the remaining number of tokens 
     *                                       that spender (i.e. SwylMarketplace address) will be allowed to spend 
     *                                       on behalf of owner (i.e. _buyer) through transferFrom. This is zero by default.
     */
@@ -805,7 +805,7 @@ contract SwylMarketplace is
     }
 
     /**
-    *  @dev Pays out the currency
+    *  @dev Pays out the the transactions
     *
     *  @param _payer                        address - the address that pays the price amount
     *
@@ -951,7 +951,7 @@ contract SwylMarketplace is
         }
     }
 
-    /// @dev Returns an array of `listingIds` that are owned by a specific listing's creator
+    /// @dev Returns an array of `Listings` that are owned by a specific listing's creator
     function getListingsOwnedBy(address _listingCreator) public view returns (Listing[] memory) {
         uint256 totalAmountListedByOwner = getTotalAmountListingBy(_listingCreator);
         uint256 currentIndex;
