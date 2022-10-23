@@ -87,9 +87,6 @@ contract SwylMarketplace is
     /// @dev Mapping from uid of a direct listing => offeror address => offer made to the direct listing by the respective offeror.
     mapping(uint256 => mapping(address => OfferParameters)) private offers;
 
-    /// @dev Mapping from msg.sender address => an array of listingIds
-    mapping(address => Listing[]) private totalListingsOwnedBy;
-
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
     //////////////////////////////////////////////////////////////*/
@@ -436,7 +433,7 @@ contract SwylMarketplace is
         targetListing.buyoutPricePerToken = _buyoutPricePerToken;
         targetListing.currency = _currencyToAccept;
 
-        // update global totaltotalListingsOwnedBy
+        // update global totalListingItems
         totalListingItems[_listingId] = targetListing;
 
         // finally, emit the ListingUpdated event
@@ -501,8 +498,6 @@ contract SwylMarketplace is
             totalPriceToPay,
             tokenAmountToList
         );
-
-        /// @TODO update totalListingsOwnedBy
     }
 
 
@@ -669,7 +664,7 @@ contract SwylMarketplace is
             for (uint i = 0; i < listings.length; i++) {
 
                 /**
-                * @dev if _assetContract and _tokenId is found in the list of totalListingsOwnedBy => the listing has been created => FAILING CONDITION
+                * @dev if _assetContract and _tokenId is found in the list of `listings` => the listing has been created => FAILING CONDITION
                 */
                 if (listings[i].assetContract == _assetContract && listings[i].tokenId == _tokenId) {
                     return false;
