@@ -16,8 +16,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 
 import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
 import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
-import "@thirdweb-dev/contracts/lib/FeeType.sol";
-
 
 //  ==========  Internal imports    ==========
 import { ISwylDonation } from "../../interfaces/v1/ISwylDonation.sol";
@@ -296,6 +294,69 @@ contract SwylDonation is
             _nativeTokenWrapper
         );
     }
+
+
+    /*///////////////////////////////////////////////////////////////
+                            Getter functions
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Returns an array of `Donations` that have been made to the `_donatee`
+    function getDonationsTo(address _donatee) public view returns (Donation[] memory) {
+        uint256 totalDonationsToDonatee = getTotalDonationsTo(_donatee);
+        uint256 currentIndex;
+
+        Donation[] memory donations = new Donation[](totalDonationsToDonatee);
+
+        for (uint256 i = 0; i < totalDonationTx; i++) {
+            if (totalDonations[i].donatee == _donatee) {
+                Donation memory donation = totalDonations[i];
+                donations[currentIndex] = donation;
+                currentIndex++;
+            }
+        }
+        return donations;
+    }
+
+
+    /// @dev Returns the total amount of donations have been made to the `_donatee`
+    function getTotalDonationsTo(address _donatee) public view returns (uint256 total) {
+        for (uint256 i = 0; i < totalDonationTx; i++) {
+            if (totalDonations[i].donatee == _donatee) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+
+    /// @dev Returns an array of `Donations` that have been made by the `_donator`
+    function getDonationsMadeBy(address _donator) public view returns (Donation[] memory) {
+        uint256 totalDonationsToDonatee = getTotalDonationsBy(_donator);
+        uint256 currentIndex;
+
+        Donation[] memory donations = new Donation[](totalDonationsToDonatee);
+
+        for (uint256 i = 0; i < totalDonationTx; i++) {
+            if (totalDonations[i].donator == _donator) {
+                Donation memory donation = totalDonations[i];
+                donations[currentIndex] = donation;
+                currentIndex++;
+            }
+        }
+        return donations;
+    }
+
+
+    /// @dev Returns the total amount of donations have been made by the `_donator`
+    function getTotalDonationsBy(address _donator) public view returns (uint256 total) {
+        for (uint256 i = 0; i < totalDonationTx; i++) {
+            if (totalDonations[i].donator == _donator) {
+                total++;
+            }
+        }
+        return total;
+    }
+
     /*///////////////////////////////////////////////////////////////
                             Utilities
     //////////////////////////////////////////////////////////////*/
