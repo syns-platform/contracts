@@ -439,15 +439,6 @@ contract SwylMarketplace is
         // update global totaltotalListingsOwnedBy
         totalListingItems[_listingId] = targetListing;
 
-        // update global totalListingsOwnedBy
-        Listing[] memory listings = totalListingsOwnedBy[_msgSender()];
-        for (uint i = 0; i < listings.length; i ++) {
-            if (listings[i].listingId == _listingId) {
-                totalListingsOwnedBy[_msgSender()][i] = targetListing;
-                break;
-            }
-        }
-
         // finally, emit the ListingUpdated event
         emit ListingUpdated(targetListing.listingId, targetListing.tokenOwner);
     }
@@ -461,15 +452,6 @@ contract SwylMarketplace is
     function cancelListing(uint256 _listingId) external override onlyListingOwner(_listingId){
         // delete from totalListingItems
         delete totalListingItems[_listingId];
-
-        // delete from totalListingsOwnedBy
-        Listing[] storage listings = totalListingsOwnedBy[_msgSender()];
-        for (uint256 i = 0; i < listings.length; i++) {
-            if (listings[i].listingId == _listingId) {
-                removeOwnedListing(listings, i);
-                break;
-            }
-        }
 
         // emit event
         emit ListingRemoved(_listingId, _msgSender());
@@ -495,8 +477,12 @@ contract SwylMarketplace is
         // get targetListing
         Listing memory targetListing = totalListingItems[_listingId];
 
+        // Check if tokenAmountToList is valid
+        uint256 tokenAmountToList = getSafeQuantity(targetListing.tokenType, _quantity);
+        require(tokenAmountToList > 0, "INVALID QUANTITY - must be greater than 0");
+
         // get totalPriceToPay = price per token * desired `_quantity`
-        uint256 totalPriceToPay = targetListing.buyoutPricePerToken * _quantity;
+        uint256 totalPriceToPay = targetListing.buyoutPricePerToken * tokenAmountToList;
 
         // get buyer address
         address buyer = _msgSender();
@@ -513,7 +499,7 @@ contract SwylMarketplace is
             _receiver,
             targetListing.currency,
             totalPriceToPay,
-            _quantity
+            tokenAmountToList
         );
 
         /// @TODO update totalListingsOwnedBy
@@ -551,10 +537,6 @@ contract SwylMarketplace is
             _totalPriceToTransfer
         );
 
-        // update _targetListing.quantity
-        _targetListing.quantity -= _quantityToTransfer;
-        totalListingItems[_targetListing.listingId] = _targetListing;
-
         /// @dev transfer currency
         ///     (1) to SwylServiceFeeRecipient
         ///     (2) to original creator (royaltyRecipient)
@@ -590,6 +572,7 @@ contract SwylMarketplace is
     * @dev Lets someone make an offer to an existing direct listing
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE Coming in SwylMarketplace v2
     */
     function offer(
         uint256 _listingId, 
@@ -603,6 +586,7 @@ contract SwylMarketplace is
     * @dev Lets a listing's creator accept an offer to their direct listing
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE Coming in SwylMarketplace v2
     */
     function acceptOffer(
         uint256 _listingId, 
@@ -880,11 +864,12 @@ contract SwylMarketplace is
         address _nativeTokenWrapper = nativeTokenWrapper;
 
         // Distribute price to SwylServiceFeeRecipient account
-        CurrencyTransferLib.transferCurrency(
+        CurrencyTransferLib.transferCurrencyWithWrapper(
             _currencyToUse, 
             _payer, 
             swylServiceFeeRecipient, 
-            platformFeeCut
+            platformFeeCut,
+            _nativeTokenWrapper
         );
 
         // Distribute price to original author receipient
@@ -926,21 +911,25 @@ contract SwylMarketplace is
         Listing memory _listing
     ) internal {
         if (_listing.tokenType == TokenType.ERC1155) {
+            // Transfer the token to the `_to` address
             IERC1155Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, _quantity, "");
-        } else if (_listing.tokenType == TokenType.ERC721) {
-            IERC721Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, "");
-        }
-    }
 
-    event log(uint256);
-    function removeOwnedListing(Listing[] storage listings, uint256 index) internal {
-        for(uint256 i = index; i < listings.length-1; i++) {
-            listings[i] = listings[i+1];
+            // Update global `totalListingItems`
+            if (_listing.quantity == _quantity) {
+                delete totalListingItems[_listing.listingId];
+            } else {
+                // update _targetListing.quantity
+                _listing.quantity -= _quantity;
+                totalListingItems[_listing.listingId] = _listing;
+            }
+            
+        } else if (_listing.tokenType == TokenType.ERC721) {
+            // Transfer the token to the `_to` address
+            IERC721Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, "");
+
+            // Delete the listing off from SwylMarketplace
+            delete totalListingItems[_listing.listingId];
         }
-        delete listings[listings.length -1];
-        listings.pop();
-        emit log(listings.length);
-        totalListingsOwnedBy[_msgSender()] = listings;
     }
 
     /*///////////////////////////////////////////////////////////////
