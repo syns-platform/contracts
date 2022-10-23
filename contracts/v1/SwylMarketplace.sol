@@ -85,6 +85,7 @@ contract SwylMarketplace is
     mapping(uint256 => Listing) private totalListingItems;
 
     /// @dev Mapping from uid of a direct listing => offeror address => offer made to the direct listing by the respective offeror.
+    /// @notice v2.0 features
     mapping(uint256 => mapping(address => OfferParameters)) private offers;
 
     /*///////////////////////////////////////////////////////////////
@@ -564,6 +565,7 @@ contract SwylMarketplace is
 
 
     /**
+    * @notice v2.0 features
     * @dev Lets someone make an offer to an existing direct listing
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
@@ -578,6 +580,7 @@ contract SwylMarketplace is
     ) external payable nonReentrant onlyExistingListing(_listingId) {}
 
     /**
+    * @notice v2.0 features
     * @dev Lets a listing's creator accept an offer to their direct listing
     *
     * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol

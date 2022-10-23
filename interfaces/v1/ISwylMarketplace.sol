@@ -36,6 +36,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
 
     /**
      *  @notice The information related to an offer on a direct listing
+     *  @notice v2.0 features
      *
      *  @param listingId            uint256 - The uid of the listing the offer is made to.
      *  @param offeror              address - The account making the offer.
@@ -152,6 +153,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     );
 
     /// @dev Emitted when (1) a new offer is made to a direct listing, or (2) when a new bid is made in an auction.
+    /// @notice v2.0 features
     event NewOffer(
         uint256 indexed listingId,
         address indexed offeror,
@@ -234,6 +236,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
 
     /**
      *  @notice Lets someone make an offer to an existing direct listing.
+     *  @notice v2.0 features
      *
      *  @dev Each (address, listing ID) pair maps to a single unique offer. E.g. if a buyer makes
      *       two offers to the same direct listing, the last offer is counted as the buyer's
@@ -260,6 +263,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
 
     /**
      * @notice Lets a listing's creator accept an offer to their direct listing.
+     * @notice v2.0 features
      *
      * @param _listingId            uint256 - The unique ID of the listing for which to accept the offer.
      *

@@ -39,6 +39,7 @@ contract SwylDonation is
     string public contractURI;
 
     /// @dev Only lister role holders can create listings, when listings are restricted by lister address.
+    /// @notice v2.0 features
     bytes32 private constant DONATOR_ROLE = keccak256("DONATOR_ROLE");
 
     /// @dev The address of the native token wrapper contract i.e. 0xeee.
@@ -61,12 +62,14 @@ contract SwylDonation is
     //////////////////////////////////////////////////////////////*/
     
     /// @dev Checks whether the caller is the donation's creator
+    /// @notice v2.0 features
     modifier onlyDonator(uint256 _donationId) {
         require(totalDonations[_donationId].donator == _msgSender(), "!DONATOR");
         _; // move on
     }
 
     /// @dev Checks whether a listing exists
+    /// @notice v2.0 features
     modifier onlyExistingDonation(uint256 _listingId) {
         // Make sure the NFT assetContract is a valid address
         require(totalDonations[_listingId].donator != address(0), "DNE");
@@ -195,18 +198,19 @@ contract SwylDonation is
 
 
     /**
+    * @notice v2.0 features
     * @notice Only for monthly donation type.
     *
     * @notice Lets a donator make an update to the monthly donation created by them.
     *
     * @param _param UpdatedDonationParam - The parameter that governs a monthly donation to be updated.
     *                                      See struct UpdateDonationParam for more info.
-    *
     */
     function updateDonation(UpdateDonationParam memory _param) external override {}
 
 
     /**
+    * @notice v2.0 features
     * @notice Lets a donator cancel the monthly donation created by them.
     *
     * @param _donationId uint256 - the uid of the target donation to be deleted.

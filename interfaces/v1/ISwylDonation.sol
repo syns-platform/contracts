@@ -14,6 +14,7 @@ interface ISwylDonation {
     //  ==========  Enumerables    ==========
 
     /// @notice The donation can either be one-time or monthly.
+    /// @notice Monthly is v2.0 features
     enum DonationType {
         OneTime,
         Monthly
@@ -76,6 +77,8 @@ interface ISwylDonation {
     * @param donationId             uint256 - The uid of the targetDonation to be updated.
     *
     * @param donationAmount         uint256 - The amount the donator wish to donate.
+    *
+    * @notice v2.0 features
     */
     struct UpdateDonationParam {
         uint256 donationId;
@@ -114,6 +117,7 @@ interface ISwylDonation {
     * @param _param UpdatedDonationParam - The parameter that governs a monthly donation to be updated.
     *                                      See struct UpdateDonationParam for more info.
     *
+    * @notice v2.0 features
     */
     function updateDonation(UpdateDonationParam memory _param) external;
 
@@ -122,6 +126,8 @@ interface ISwylDonation {
     * @notice Lets a donator cancel the monthly donation created by them.
     *
     * @param _donationId uint256 - the uid of the target donation to be deleted.
+    *
+    * * @notice v2.0 features
     */
     function cancelDonation(uint256 _donationId) external;
 
