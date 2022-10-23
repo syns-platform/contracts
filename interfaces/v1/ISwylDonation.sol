@@ -36,10 +36,9 @@ interface ISwylDonation {
     * @param currency           address - The address of the currency in which `donator` makes the donation.
     *                                     Must match the currency donatee accepts.
     *
+    * @param date               uint256 - A unix timestamp to record the date the donation is created
+    *
     * @param donationType       DonationType - The type of the donation (one-time or monthly).
-    *
-    * @param donationMetadata   string - An IPFS link to the donationMetadata {message, date, etc.}
-    *
     */
     struct Donation {
         uint256 donationId;
@@ -47,8 +46,8 @@ interface ISwylDonation {
         address donatee;
         uint256 donationAmount;
         address currency;
+        uint256 date;
         DonationType donationType;
-        string donationMetadata;
     }
 
 
@@ -59,11 +58,14 @@ interface ISwylDonation {
     *
     * @param donatee                address - The address that receives the donation.
     *
+    * @param currency               address - The address of the currency to be used.
+    *
     * @param donationType           DonationType - Monthly or one-time.
     */
     struct MakeDonationParam {
         uint256 donationAmount;
         address donatee;
+        address currency;
         DonationType donationType;
     }
 
@@ -93,8 +95,6 @@ interface ISwylDonation {
     /// @dev Emitted when a monthly-donation is canceled.
     event DonationCanceled(uint256 indexed donationId, address indexed donator, address donatee);
 
-    
-
     //  ==========  Function(s)    ==========
     
     /**
@@ -103,7 +103,7 @@ interface ISwylDonation {
     * @param _param MakeDonationParam - The parameter that governs the donation to be created.
     *                                   See struct MakeDonationParam for more info.
     */
-    function makeDonation(MakeDonationParam memory _param) external;
+    function makeDonation(MakeDonationParam memory _param) external payable;
 
 
     /**
