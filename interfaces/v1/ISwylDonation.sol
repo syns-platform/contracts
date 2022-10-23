@@ -37,6 +37,9 @@ interface ISwylDonation {
     *                                     Must match the currency donatee accepts.
     *
     * @param donationType       DonationType - The type of the donation (one-time or monthly).
+    *
+    * @param donationMetadata   string - An IPFS link to the donationMetadata {message, date, etc.}
+    *
     */
     struct Donation {
         uint256 donationId;
@@ -45,7 +48,7 @@ interface ISwylDonation {
         uint256 donationAmount;
         address currency;
         DonationType donationType;
-        string donationURI;
+        string donationMetadata;
     }
 
 
@@ -55,7 +58,6 @@ interface ISwylDonation {
     * @param donationAmount         uint256 - The amount the donator wish to donate.
     *
     * @param donatee                address - The address that receives the donation.
-    *
     *
     * @param donationType           DonationType - Monthly or one-time.
     */
