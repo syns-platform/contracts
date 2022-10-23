@@ -12,7 +12,7 @@ This repository contains a list of smart contracts written in [Solidity](https:/
 
 - `SwylERC1155` - implements the [@Thirdweb](https://thirdweb.com/)/[ERC1155Base](https://github.com/logann131/contracts/blob/main/contracts/base/ERC1155Base.sol) NFT standard. `SwylERC1155` includes all the NFT industry standards from ERC1155 PLUS `Swyl's logic`.
 
-- `SwylMarketPlace` - inherits many safe, gas optimizing and well-tested features from the [@Thirdweb](https://thirdweb.com)/Marketplace smart contract. 
+- `SwylMarketPlace` - inherits many safe, gas optimizing and well-tested features from the [@Thirdweb](https://thirdweb.com)/Marketplace smart contract.
 
 - `SwylDonation` - comming soon...
 
@@ -44,7 +44,7 @@ npm run release
 yarn release
 ```
 
-
 ## Resources / Honors
- - [Thirdweb](https://thirdweb.com/)
- - [OpenZeppelin](https://www.openzeppelin.com/)
+
+- [Thirdweb](https://thirdweb.com/)
+- [OpenZeppelin](https://www.openzeppelin.com/)
