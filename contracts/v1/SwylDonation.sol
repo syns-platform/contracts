@@ -98,7 +98,7 @@ contract SwylDonation is
 
          // grant roles
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account
-        _setupRole(DONATOR_ROLE, address(0)); 
+        _setupRole(DONATOR_ROLE, address(0));
     }
 
 
@@ -153,7 +153,7 @@ contract SwylDonation is
 
 
     /*///////////////////////////////////////////////////////////////
-                Donation (create-update-delete) logic
+                Donation (create-update-cancel) logic
     //////////////////////////////////////////////////////////////*/
 
     /**
@@ -162,7 +162,38 @@ contract SwylDonation is
     * @param _param MakeDonationParam - The parameter that governs the donation to be created.
     *                                   See struct MakeDonationParam for more info.
     */
-    function makeDonation(MakeDonationParam memory _param) external override {}
+    function makeDonation(MakeDonationParam memory _param) external payable override nonReentrant {
+        
+        /// @dev validate donation tx
+        validateFund(_msgSender(), _param.currency, _param.donationAmount);
+
+        /// @dev payout the donation tx
+        payout(_msgSender(), _param.donatee, _param.currency, _param.donationAmount);
+
+        /// update global state `totalDonations` array
+        
+        // get currentId
+        uint256 donationId = totalDonationTx;
+        // increment total donation transactions
+        totalDonationTx++;
+        // initialize newDonation
+        Donation memory newDonation = Donation({
+            donationId: donationId,
+            donator: _msgSender(),
+            donatee: _param.donatee,
+            donationAmount: _param.donationAmount,
+            currency: _param.currency,
+            date: block.timestamp,
+            donationType: DonationType.OneTime
+        });
+        // add `_param.donator` to global `totalDations`
+        totalDonations[donationId] = newDonation;
+
+
+        /// emit DonationMade event
+        emit DonationMade(donationId, _msgSender(), _param.donatee, newDonation, _param.donationType);
+
+    }
 
 
     /**
