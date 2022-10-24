@@ -266,8 +266,33 @@ contract SwylDonation is
 
     /** 
     * @notice Lets a Club's owner delete a Tier
+    *
+    * @param _tierId    uint256 - the uid of the tier to be deleted
     */
-    function deleteTier() external override {}
+    function deleteTier(uint256 _tierId) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()) {
+         // get target Club
+        Club storage targetClub = totalClubs[_msgSender()];
+
+        // validate if `_param.tierId` points to a valid Tier
+        require(_tierId < targetClub.tiers.length, "!TIER_ID - invalid _param.tierId");
+
+        // get the array of Tier
+        Tier[] storage tiers = targetClub.tiers;
+
+        // shift items toward to cover the target deleted tier => eventually create duplicating last item
+        for (uint256 i = _tierId; i < tiers.length - 1; i++) {
+            tiers[i] = tiers[i+1];
+        }
+
+        // remove the last item
+        tiers.pop();
+
+        // updated global `totalClubs` state
+        totalClubs[_msgSender()].tiers = tiers;
+
+        // emit TierDeleted event
+        emit TierDeleted(_tierId, _msgSender(), tiers);
+    }
 
 
     /** 
