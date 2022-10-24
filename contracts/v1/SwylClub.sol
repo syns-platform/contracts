@@ -188,7 +188,7 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more info.
     */
-    function addTier(TierAPIParam memory _param) external override onlyClubOwner(_msgSender()){
+    function addTier(AddTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyExistingClub(_msgSender()){
         // param checks
         require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
         require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
@@ -225,7 +225,34 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more details.
     */
-    function updateTier(TierAPIParam memory _param) external override {}
+    function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyExistingClub(_msgSender()) {
+        // param checks
+        require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
+        require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
+
+        // get target Club
+        Club memory targetClub = totalClubs[_msgSender()];
+
+        // validate if `_param.tierId` points to a valid Tier
+        require(_param.tierId < targetClub.tiers.length, "!TIER_ID - invalid _param.tierId");
+
+        // get target Tier
+        Tier memory targetTier = targetClub.tiers[_param.tierId];
+
+        // revert transaction if desired parameters are not any different than targetTier's attributes to save gas
+        bool isUpdatable = _param.tierFee != targetTier.tierFee ||
+                           keccak256(abi.encodePacked(_param.tierData)) != keccak256(abi.encodePacked(targetTier.tierData)) || 
+                           _param.sizeLimit != targetTier.sizeLimit;
+        require(isUpdatable, "!UPDATABLE - nothing new to update");
+
+        // update Tier 
+        targetTier.tierFee = _param.tierFee;
+        targetTier.sizeLimit = _param.sizeLimit;
+        targetTier.tierData = _param.tierData;
+
+        // update global totalClubs
+        totalClubs[_msgSender()].tiers[_param.tierId] = targetTier;
+    }
 
 
     /** 
