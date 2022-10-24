@@ -15,16 +15,13 @@ interface ISwylClub {
     /**
     * @notice The information of a Club.
     *
-    * @param clubId         uint256 - the unique id of the club.
-    *
-    * @param clubOwner      address - the address of the owner.
+s    * @param clubOwner      address - the address of the owner.
     *
     * @param date           uint256 - uinx timestamp when a Club is created.
     *
     * @param tiers          Tier - an array of struct Tiers.
     */
     struct Club {
-        uint256 clubId;
         address clubOwner;
         uint256 date;
         Tier[] tiers;
@@ -117,22 +114,22 @@ interface ISwylClub {
 
 
     /// @dev Emitted when a new Club is created
-    event ClubCreated(uint256 indexed clubId, address indexed clubOwner, Club club);
+    event ClubCreated(address indexed clubOwner, Club club);
 
     /// @dev Emitted when a new tier is added
-    event TierAdded(uint256 indexed clubId, uint256 indexed tierId, address indexed clubOnwer, Tier newTier);
+    event TierAdded(uint256 indexed tierId, address indexed clubOnwer, Tier newTier);
 
     /// @dev Emitted when a tier is updated
-    event TierUpdated(uint256 indexed clubId, uint256 indexed tierId, address indexed clubOwner, Tier updatedTier);
+    event TierUpdated(uint256 indexed tierId, address indexed clubOwner, Tier updatedTier);
 
     /// @dev Emitted when a tier is deleted
-    event TierDeleted(uint256 indexed clubId, uint256 indexed tierId, address indexed clubOwner, Tier deletedTier);
+    event TierDeleted(uint256 indexed tierId, address indexed clubOwner, Tier deletedTier);
 
     /// @dev Emitted when a subscription is made
-    event SubscriptionMade(uint256 indexed subscriptionId, uint256 indexed clubId, uint256 indexed tierId, address subscriptor, Subscription subscription);
+    event SubscriptionMade(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
 
     /// @dev Emitted when a subscription is canceled
-    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed clubId, uint256 indexed tierId, address subscriptor, Subscription subscription);
+    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
 
     
 
