@@ -19,11 +19,14 @@ s    * @param clubOwner      address - the address of the owner.
     *
     * @param date           uint256 - uinx timestamp when a Club is created.
     *
+    * @param currency       address - The address of the currency to be used.
+    *
     * @param tiers          Tier - an array of struct Tiers.
     */
     struct Club {
         address clubOwner;
         uint256 date;
+        address currency;
         Tier[] tiers;
     }
 
@@ -38,9 +41,7 @@ s    * @param clubOwner      address - the address of the owner.
     *
     * @param sizeLimit      uint256 - an optional choice if club's owner wants to limit the size of a certain tier.
     *
-    * @param currency       address - The address of the currency to be used.
-    *
-    * @param tierData       string - the off-chain JSON typed metadata of the tier includes:
+    * @param tierData       string - the off-chain URI to the JSON typed metadata of the tier includes:
     *                                   (1) Tier's name
     *                                   (2) Tier's benefit
     *                                   (3) Tier's description
@@ -52,7 +53,6 @@ s    * @param clubOwner      address - the address of the owner.
         uint256 tierFee;
         address[] members;
         uint256 sizeLimit;
-        address currency;
         string tierData;
     }
 
@@ -60,16 +60,16 @@ s    * @param clubOwner      address - the address of the owner.
     /** 
     * @notice For use in `addeTier()` and `updateTier()` as a parameter type.
     *
-    * @param tierFee        uin256 - the price per month of the tier.
+    * @param tierFee        uint256 - the price per month of the tier.
     *
     * @param sizeLimit      uint256 - the size limit of the tier to be added.
     *
-    * @param currency       address - The address of the currency to be used.
+    * @param tierData       string - the URI to the metadata of the tier
     */
     struct TierAPIParam {
         uint256 tierFee;
         uint256 sizeLimit;
-        address currency;
+        string tierData;
     }
     
     /** 
@@ -139,8 +139,10 @@ s    * @param clubOwner      address - the address of the owner.
     * @notice Lets an account start a new Club
     *
     * @dev Start a new Club struct
+    *
+    * @param _currency  address - the address of the accepted currency
     */
-    function startClub() external;
+    function startClub(address _currency) external;
 
 
     /** 
