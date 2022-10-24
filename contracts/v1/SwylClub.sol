@@ -58,8 +58,14 @@ contract SwylDonation is
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Checks where the caller is a Club's onwer
-    modifier onlyClubOwner(address clubOwner) {
+    modifier onlyClubOwnerRole(address clubOwner) {
         require(hasRole(CLUB_OWNER_ROLE, _msgSender()), "!CLUB_OWNER");
+        _; // move on
+    }
+
+    /// @dev Checks where the caller is the owner of the Club
+    modifier onlyClubOwner(address clubOwner) {
+        require(totalClubs[_msgSender()].clubOwner == _msgSender() , "!CLUB_OWNER");
         _; // move on
     }
 
@@ -188,7 +194,7 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more info.
     */
-    function addTier(AddTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyExistingClub(_msgSender()){
+    function addTier(AddTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()){
         // param checks
         require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
         require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
@@ -225,7 +231,7 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more details.
     */
-    function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyExistingClub(_msgSender()) {
+    function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()) {
         // param checks
         require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
         require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
@@ -252,6 +258,9 @@ contract SwylDonation is
 
         // update global totalClubs
         totalClubs[_msgSender()].tiers[_param.tierId] = targetTier;
+
+        // emit the TierUpdated event
+        emit TierUpdated(_param.tierId, _msgSender(), targetTier);
     }
 
 
@@ -282,6 +291,11 @@ contract SwylDonation is
 
 
 
+    /*///////////////////////////////////////////////////////////////
+                            Internal functions
+    //////////////////////////////////////////////////////////////*/
+
+    
     /*///////////////////////////////////////////////////////////////
                             Getter functions
     //////////////////////////////////////////////////////////////*/
