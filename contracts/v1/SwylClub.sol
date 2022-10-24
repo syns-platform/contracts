@@ -157,7 +157,27 @@ contract SwylDonation is
     *
     * @dev Start a new Club struct
     */
-    function startClub() external override {}
+    function startClub() external override {
+        // stop a club's owner to create a second club
+        require(!hasRole(CLUB_OWNER_ROLE, _msgSender()), "!NOT ALOOWED - account already has a club");
+
+        // grant CLUB_OWNER_ROLE to the caller
+        _setupRole(CLUB_OWNER_ROLE, _msgSender());
+
+        // start a new Club
+        Tier[] memory tiers;
+        Club memory newClub = Club({
+            clubOwner: _msgSender(),
+            date: block.timestamp,
+            tiers: tiers
+        });
+
+        // update global `toalClubs`
+        totalClubs[_msgSender()] = newClub;
+
+        // emit ClubCreated event
+        emit ClubCreated(_msgSender(), newClub);
+    }
 
     /** 
     * @notice Lets a Club's owner add a Tier
