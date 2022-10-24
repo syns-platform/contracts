@@ -58,7 +58,7 @@ s    * @param clubOwner      address - the address of the owner.
 
 
     /** 
-    * @notice For use in `addeTier()` and `updateTier()` as a parameter type.
+    * @notice For use in `addTier()` as a parameter type.
     *
     * @param tierFee        uint256 - the price per month of the tier.
     *
@@ -66,7 +66,25 @@ s    * @param clubOwner      address - the address of the owner.
     *
     * @param tierData       string - the URI to the metadata of the tier
     */
-    struct TierAPIParam {
+    struct AddTierParam {
+        uint256 tierFee;
+        uint256 sizeLimit;
+        string tierData;
+    }
+
+    /** 
+    * @notice For use in `updateTier()` as a parameter type.
+    *
+    * @param tierId         uint256 - the uid of the tier.
+    *
+    * @param tierFee        uint256 - the price per month of the tier.
+    *
+    * @param sizeLimit      uint256 - the size limit of the tier to be added.
+    *
+    * @param tierData       string - the URI to the metadata of the tier
+    */
+    struct UpdateTierParam {
+        uint256 tierId;
         uint256 tierFee;
         uint256 sizeLimit;
         string tierData;
@@ -150,20 +168,20 @@ s    * @param clubOwner      address - the address of the owner.
     *
     * @dev Create a new Tier struct and add it to corresponding Club
     *
-    * @param _param     TierAPIParam - the parameter that governs the tier to be created.
-    *                                  See struct `TierAPIParam` for more info.
+    * @param _param     AddTierParam - the parameter that governs the tier to be created.
+    *                                  See struct `AddTierParam` for more info.
     */
-    function addTier(TierAPIParam memory _param) external;
+    function addTier(AddTierParam memory _param) external;
 
 
 
     /** 
     * @notice Lets a Club's owner update a Tier
     *
-    * @param _param     TierAPIParam - the parameter that governs the tier to be created.
-    *                                  See struct `TierAPIParam` for more details.
+    * @param _param     UpdateTierParam - the parameter that governs the tier to be created.
+    *                                  See struct `UpdateTierParam` for more details.
     */
-    function updateTier(TierAPIParam memory _param) external;
+    function updateTier(UpdateTierParam memory _param) external;
 
 
     /** 
