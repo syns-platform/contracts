@@ -3,7 +3,6 @@
     @Course: SUNY Oswego - CSC 495 - Capstone
     @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
-    @Honor: Thirdweb
 */
 
 // SPDX-License-Identifier: MIT
@@ -24,7 +23,7 @@ interface ISwylDonation {
     //  ==========  Struct(s)    ==========
 
     /**
-    * @notice The information of a donation
+    * @notice The information of a Donation
     *
     * @param donationId         uint256 - The unique id of the donation.
     *
@@ -98,6 +97,8 @@ interface ISwylDonation {
     /// @dev Emitted when a monthly-donation is canceled.
     event DonationCanceled(uint256 indexed donationId, address indexed donator, address donatee);
 
+    
+    
     //  ==========  Function(s)    ==========
     
     /**
