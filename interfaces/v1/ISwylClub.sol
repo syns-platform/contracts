@@ -141,7 +141,7 @@ s    * @param clubOwner      address - the address of the owner.
     event TierUpdated(uint256 indexed tierId, address indexed clubOwner, Tier updatedTier);
 
     /// @dev Emitted when a tier is deleted
-    event TierDeleted(uint256 indexed tierId, address indexed clubOwner, Tier deletedTier);
+    event TierDeleted(uint256 indexed tierId, address indexed clubOwner, Tier[] tiers);
 
     /// @dev Emitted when a subscription is made
     event SubscriptionMade(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
@@ -186,8 +186,10 @@ s    * @param clubOwner      address - the address of the owner.
 
     /** 
     * @notice Lets a Club's owner delete a Tier
+    *
+    * @param _tierId    uint256 - the uid of the tier to be deleted
     */
-    function deleteTier() external;
+    function deleteTier(uint256 _tierId) external;
 
 
     /** 
