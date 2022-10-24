@@ -286,9 +286,15 @@ contract SwylDonation is
                             Getter functions
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Returns a club by `_clubOwner`
+    /// @dev Returns a Club by `_clubOwner`
     function getClubOwnedBy(address _clubOwner) public view returns (Club memory) {
         return totalClubs[_clubOwner];
+    }
+
+
+    /// @dev Returns an array of Tier that a `_clubOwner` has
+    function getTiersBy(address _clubOwner) public view returns (Tier[] memory) {
+        return totalClubs[_clubOwner].tiers;
     }
 
 
