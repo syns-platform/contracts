@@ -157,7 +157,7 @@ contract SwylDonation is
     *
     * @dev Start a new Club struct
     */
-    function startClub() external override {
+    function startClub(address _currency) external override {
         // stop a club's owner to create a second club
         require(!hasRole(CLUB_OWNER_ROLE, _msgSender()), "!NOT ALOOWED - account already has a club");
 
@@ -169,6 +169,7 @@ contract SwylDonation is
         Club memory newClub = Club({
             clubOwner: _msgSender(),
             date: block.timestamp,
+            currency: _currency,
             tiers: tiers
         });
 
@@ -187,7 +188,34 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more info.
     */
-    function addTier(TierAPIParam memory _param) external override {}
+    function addTier(TierAPIParam memory _param) external override onlyClubOwner(_msgSender()){
+        // param checks
+        require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
+        require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
+
+
+        // get currentTierId
+        uint256 currentTierId = totalClubs[_msgSender()].tiers.length;
+
+        // get members array
+        address[] memory members;
+
+        // initialize newTier struct
+        Tier memory newTier = Tier({
+            tierId: currentTierId,
+            tierFee: _param.tierFee,
+            members: members,
+            sizeLimit: _param.sizeLimit,
+            tierData: _param.tierData
+        });
+
+
+        // add newTier to global `totalClubs` array
+        totalClubs[_msgSender()].tiers.push(newTier);
+
+        // emit TierAdded event
+        emit TierAdded(currentTierId, _msgSender(), newTier);
+    }
 
 
 
