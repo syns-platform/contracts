@@ -156,7 +156,7 @@ interface ISwylClub {
     event TierDeleted(uint256 indexed tierId, address indexed clubOwner, Tier[] tiers);
 
     /// @dev Emitted when a subscription is made
-    event SubscriptionMade(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
+    event NewSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
 
     /// @dev Emitted when a subscription is canceled
     event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
