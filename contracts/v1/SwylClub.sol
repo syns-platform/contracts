@@ -20,7 +20,7 @@ import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
 //  ==========  Internal imports    ==========
 import { ISwylClub } from "../../interfaces/v1/ISwylClub.sol";
 
-contract SwylDonation is
+contract SwylClub is
     Initializable,
     ISwylClub,
     ERC2771ContextUpgradeable,
@@ -44,13 +44,19 @@ contract SwylDonation is
     /// @dev The address of the native token wrapper contract i.e. 0xeee.
     address private immutable nativeTokenWrapper;
 
+    /// @dev The total clubs have ever been created
+    uint256 public totalNumberClubs;
+
     
     /*///////////////////////////////////////////////////////////////
                                 Mappings
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Mapping from an address of a Club's owner => Club.
-    mapping(address => Club) private totalClubs;
+    /// @dev Mapping from an address of a clubId => Club.
+    mapping(uint256 => Club) private totalClubs;
+
+    /// @dev Mapping from a clubId => Tier[]
+    mapping(uint256 => Tier[]) private totalTiers;
 
 
     /*///////////////////////////////////////////////////////////////
@@ -58,21 +64,21 @@ contract SwylDonation is
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Checks where the caller is a Club's onwer
-    modifier onlyClubOwnerRole(address clubOwner) {
+    modifier onlyClubOwnerRole() {
         require(hasRole(CLUB_OWNER_ROLE, _msgSender()), "!CLUB_OWNER");
         _; // move on
     }
 
     /// @dev Checks where the caller is the owner of the Club
-    modifier onlyClubOwner(address clubOwner) {
-        require(totalClubs[_msgSender()].clubOwner == _msgSender() , "!CLUB_OWNER");
+    modifier onlyClubOwner(uint256 _clubId) {
+        require(totalClubs[_clubId].clubOwner == _msgSender() , "!CLUB_OWNER");
         _; // move on
     }
 
 
     /// @dev Checks where a Club exists
-    modifier onlyExistingClub(address clubOwner) {
-        require(totalClubs[clubOwner].clubOwner != address(0), "DNE");
+    modifier onlyExistingClub(uint256 _clubId) {
+        require(totalClubs[_clubId].clubOwner != address(0), "DNE");
         _;
     }
 
@@ -170,17 +176,23 @@ contract SwylDonation is
         // grant CLUB_OWNER_ROLE to the caller
         _setupRole(CLUB_OWNER_ROLE, _msgSender());
 
+        // handle clubId and `totalNumberClubs`
+        uint256 currentId = totalNumberClubs;
+
         // start a new Club
-        Tier[] memory tiers;
+        // Tier[] memory tiers;
         Club memory newClub = Club({
+            clubId: currentId,
             clubOwner: _msgSender(),
             date: block.timestamp,
-            currency: _currency,
-            tiers: tiers
+            currency: _currency
         });
 
         // update global `toalClubs`
-        totalClubs[_msgSender()] = newClub;
+        totalClubs[currentId] = newClub;
+
+        // update global `totalNumberClubs`
+        totalNumberClubs++;
 
         // emit ClubCreated event
         emit ClubCreated(_msgSender(), newClub);
@@ -194,14 +206,14 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more info.
     */
-    function addTier(AddTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()){
+    function addTier(AddTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId){
         // param checks
         require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
         require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
 
-
         // get currentTierId
-        uint256 currentTierId = totalClubs[_msgSender()].tiers.length;
+        Tier[] storage tiers = totalTiers[_param.clubId];
+        uint256 currentTierId = tiers.length;
 
         // get members array
         address[] memory members;
@@ -217,7 +229,8 @@ contract SwylDonation is
 
 
         // add newTier to global `totalClubs` array
-        totalClubs[_msgSender()].tiers.push(newTier);
+        tiers.push(newTier);
+        totalTiers[_param.clubId] = tiers;
 
         // emit TierAdded event
         emit TierAdded(currentTierId, _msgSender(), newTier);
@@ -231,24 +244,24 @@ contract SwylDonation is
     * @param _param     TierAPIParam - the parameter that governs the tier to be created.
     *                                  See struct `TierAPIParam` for more details.
     */
-    function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()) {
+    function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId) {
         // param checks
         require(_param.tierFee > 0, "!TIER_FEE - fee must be greater than 0");
         require(_param.sizeLimit > 0, "!SIZE_LIMIT - tier size must be greater than 0");
 
-        // get target Club
-        Club memory targetClub = totalClubs[_msgSender()];
+        // get target Tier array
+        Tier[] memory targetClubTiers = totalTiers[_param.clubId];
 
         // validate if `_param.tierId` points to a valid Tier
-        require(_param.tierId < targetClub.tiers.length, "!TIER_ID - invalid _param.tierId");
+        require(_param.tierId < targetClubTiers.length, "!TIER_ID - invalid tierId parameter");
 
         // get target Tier
-        Tier memory targetTier = targetClub.tiers[_param.tierId];
+        Tier memory targetTier = targetClubTiers[_param.tierId];
 
         // revert transaction if desired parameters are not any different than targetTier's attributes to save gas
         bool isUpdatable = _param.tierFee != targetTier.tierFee ||
-                           keccak256(abi.encodePacked(_param.tierData)) != keccak256(abi.encodePacked(targetTier.tierData)) || 
-                           _param.sizeLimit != targetTier.sizeLimit;
+                           _param.sizeLimit != targetTier.sizeLimit ||
+                           keccak256(abi.encodePacked(_param.tierData)) != keccak256(abi.encodePacked(targetTier.tierData));
         require(isUpdatable, "!UPDATABLE - nothing new to update");
 
         // update Tier 
@@ -257,7 +270,7 @@ contract SwylDonation is
         targetTier.tierData = _param.tierData;
 
         // update global totalClubs
-        totalClubs[_msgSender()].tiers[_param.tierId] = targetTier;
+        totalTiers[_param.clubId][_param.tierId] = targetTier;
 
         // emit the TierUpdated event
         emit TierUpdated(_param.tierId, _msgSender(), targetTier);
@@ -269,29 +282,26 @@ contract SwylDonation is
     *
     * @param _tierId    uint256 - the uid of the tier to be deleted
     */
-    function deleteTier(uint256 _tierId) external override onlyClubOwner(_msgSender()) onlyClubOwnerRole(_msgSender()) onlyExistingClub(_msgSender()) {
-         // get target Club
-        Club storage targetClub = totalClubs[_msgSender()];
+    function deleteTier(uint256 _clubId, uint256 _tierId) external override onlyClubOwner(_clubId) onlyClubOwnerRole() onlyExistingClub(_clubId) {
+         // get target Tier array
+        Tier[] storage targetTiers = totalTiers[_clubId];
 
         // validate if `_param.tierId` points to a valid Tier
-        require(_tierId < targetClub.tiers.length, "!TIER_ID - invalid _param.tierId");
-
-        // get the array of Tier
-        Tier[] storage tiers = targetClub.tiers;
+        require(_tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
 
         // shift items toward to cover the target deleted tier => eventually create duplicating last item
-        for (uint256 i = _tierId; i < tiers.length - 1; i++) {
-            tiers[i] = tiers[i+1];
+        for (uint256 i = _tierId; i < targetTiers.length - 1; i++) {
+            targetTiers[i] = targetTiers[i+1];
         }
 
         // remove the last item
-        tiers.pop();
+        targetTiers.pop();
 
         // updated global `totalClubs` state
-        totalClubs[_msgSender()].tiers = tiers;
+        totalTiers[_clubId] = targetTiers;
 
         // emit TierDeleted event
-        emit TierDeleted(_tierId, _msgSender(), tiers);
+        emit TierDeleted(_tierId, _msgSender(), targetTiers);
     }
 
 
@@ -301,7 +311,9 @@ contract SwylDonation is
     * @param _param     SubscriotionAPIParam - the parameter that governs a subscription to be made.
     *                                          See struct `SubscriptionAPIParam` for more details.
     */
-    function subsribe(SubscriotionAPIParam memory _param) external payable override {}
+    function subsribe(SubscribeParam memory _param) external payable override {
+        
+    }
 
 
     /** 
@@ -326,14 +338,19 @@ contract SwylDonation is
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Returns a Club by `_clubOwner`
-    function getClubOwnedBy(address _clubOwner) public view returns (Club memory) {
-        return totalClubs[_clubOwner];
+    function getClubAt(uint256 _clubId) public view returns (Club memory) {
+        return totalClubs[_clubId];
     }
 
 
     /// @dev Returns an array of Tier that a `_clubOwner` has
-    function getTiersBy(address _clubOwner) public view returns (Tier[] memory) {
-        return totalClubs[_clubOwner].tiers;
+    function getTiersAt(uint256 _clubId) public view returns (Tier[] memory) {
+        return totalTiers[_clubId];
+    }
+
+    /// @dev Returns an array of Tier that a `_clubOwner` has
+    function getTier(uint256 _clubId, uint256 _tierId) public view returns (Tier memory) {
+        return totalTiers[_clubId][_tierId];
     }
 
 

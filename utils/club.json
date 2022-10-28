@@ -1,0 +1,8 @@
+[0, 20000000000000000000, 10, "data"],
+
+{
+    "clubId": 0,
+    "tierFee": 1000000,
+    "sizeLimit": 10,
+    "tierData": "data",
+}

@@ -15,19 +15,19 @@ interface ISwylClub {
     /**
     * @notice The information of a Club.
     *
-s    * @param clubOwner      address - the address of the owner.
+    * @param clubId         uint256 - the uid of the club.
+    *
+    * @param clubOwner      address - the address of the owner.
     *
     * @param date           uint256 - uinx timestamp when a Club is created.
     *
     * @param currency       address - The address of the currency to be used.
-    *
-    * @param tiers          Tier - an array of struct Tiers.
     */
     struct Club {
+        uint256 clubId;
         address clubOwner;
         uint256 date;
         address currency;
-        Tier[] tiers;
     }
 
     /** 
@@ -60,6 +60,8 @@ s    * @param clubOwner      address - the address of the owner.
     /** 
     * @notice For use in `addTier()` as a parameter type.
     *
+    * @param clubId         uint256 - the uid of the club.
+    *
     * @param tierFee        uint256 - the price per month of the tier.
     *
     * @param sizeLimit      uint256 - the size limit of the tier to be added.
@@ -67,6 +69,7 @@ s    * @param clubOwner      address - the address of the owner.
     * @param tierData       string - the URI to the metadata of the tier
     */
     struct AddTierParam {
+        uint256 clubId;
         uint256 tierFee;
         uint256 sizeLimit;
         string tierData;
@@ -74,6 +77,8 @@ s    * @param clubOwner      address - the address of the owner.
 
     /** 
     * @notice For use in `updateTier()` as a parameter type.
+    *
+    * @param clubId         uint256 - the uid of the club.
     *
     * @param tierId         uint256 - the uid of the tier.
     *
@@ -84,6 +89,7 @@ s    * @param clubOwner      address - the address of the owner.
     * @param tierData       string - the URI to the metadata of the tier
     */
     struct UpdateTierParam {
+        uint256 clubId;
         uint256 tierId;
         uint256 tierFee;
         uint256 sizeLimit;
@@ -93,7 +99,7 @@ s    * @param clubOwner      address - the address of the owner.
     /** 
     * @notice For use in `subscribe()` as a parameter type.
     *
-    * @param clubId         uint256 - the uid of the Club holding the Tier to be subsribed.
+    * @param clubOwner      address - the address of the owner of the club to be subscribed.
     *
     * @param tierId         uint256 - the uid of the Tier to be subscribed.
     *
@@ -101,8 +107,8 @@ s    * @param clubOwner      address - the address of the owner.
     *
     * @param currency       address - the address of the accepted currency.
     */
-    struct SubscriotionAPIParam {
-        uint256 clubId;
+    struct SubscribeParam {
+        uint256 clubOwner;
         uint256 tierId;
         uint256 tierFee;
         address currency;
@@ -124,7 +130,7 @@ s    * @param clubOwner      address - the address of the owner.
         uint256 subscriptionId;
         uint256 clubId;
         uint256 tierId;
-        address subscriptor; 
+        address subscriptor;
     }
 
 
@@ -187,9 +193,11 @@ s    * @param clubOwner      address - the address of the owner.
     /** 
     * @notice Lets a Club's owner delete a Tier
     *
-    * @param _tierId    uint256 - the uid of the tier to be deleted
+    * @param _clubdId       uint256 - the uid of the club.
+    *
+    * @param _tierId        uint256 - the uid of the tier to be deleted
     */
-    function deleteTier(uint256 _tierId) external;
+    function deleteTier(uint256 _clubdId, uint256 _tierId) external;
 
 
     /** 
@@ -198,7 +206,7 @@ s    * @param clubOwner      address - the address of the owner.
     * @param _param     SubscriotionAPIParam - the parameter that governs a subscription to be made.
     *                                          See struct `SubscriptionAPIParam` for more details.
     */
-    function subsribe(SubscriotionAPIParam memory _param) external payable;
+    function subsribe(SubscribeParam memory _param) external payable;
 
 
     /** 
