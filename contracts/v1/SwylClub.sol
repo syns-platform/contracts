@@ -313,8 +313,55 @@ contract SwylClub is
     * @param _param     SubscriotionAPIParam - the parameter that governs a subscription to be made.
     *                                          See struct `SubscriptionAPIParam` for more details.
     */
-    function subsribe(SubscribeParam memory _param) external payable override {
+    function subsribe(SubscribeParam memory _param) external payable override nonReentrant onlyExistingClub(_param.clubId){
+        // check if _msgSender() has already subscribed
+        bool isSubscribed = checkIsSubsribed(_param.clubId, _msgSender());
+        require(!isSubscribed, "SUBSCRIBED");
+
+        // check if tier's sizelimit has already reached the limit
+        checkIsLimit(_param.clubId, _param.tierId);
+
+        // @TODO check if the clubOwner matches the clubOwner of the tier
+        require(_param.clubOwner == getClubAt(_param.clubId).clubOwner, "!NOT_OWNER - club owner in parameter do not match club owner in club with clubId in parememter");
         
+
+        // get target Tier array
+        Tier[] storage targetTiers = totalTiers[_param.clubId];
+
+        // validate `_param.tierId`
+        require(_param.tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
+
+        /// @dev validate subscribing tx
+        validateFund(_msgSender(), _param.currency, _param.tierFee);
+
+        /// @dev payout the club fee
+        payout(_msgSender(), _param.clubOwner, _param.currency, _param.tierFee);
+
+
+        // get current subscriptionId
+        Subscription[] storage subscriptions = totalSubscriptions[_param.clubId][_param.tierId];
+        uint256 currentSubscriptionId = subscriptions.length;
+
+        // init newSubscription
+        Subscription memory newSubscription = Subscription({
+            subscriptionId: currentSubscriptionId,
+            clubId: _param.clubId,
+            tierId: _param.tierId,
+            subscriber: _msgSender()
+        });
+
+        // push newSubscriptions to the global state
+        subscriptions.push(newSubscription);
+        totalSubscriptions[_param.clubId][_param.tierId] = subscriptions;
+
+        // update totalMembers in Tier struct
+        totalTiers[_param.clubId][_param.tierId].totalMembers ++;
+
+        // update totalMembers in Club struct
+        totalClubs[_param.clubId].totalMembers ++;
+
+        // emit NewSubscription event
+        emit NewSubscription(currentSubscriptionId, _param.tierId, _msgSender(), newSubscription);
     }
 
 
