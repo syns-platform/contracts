@@ -188,7 +188,8 @@ contract SwylClub is
             clubId: currentId,
             clubOwner: _msgSender(),
             date: block.timestamp,
-            currency: _currency
+            currency: _currency,
+            totalMembers: 0
         });
 
         // update global `toalClubs`
@@ -218,14 +219,12 @@ contract SwylClub is
         Tier[] storage tiers = totalTiers[_param.clubId];
         uint256 currentTierId = tiers.length;
 
-        // get members array
-        address[] memory members;
 
         // initialize newTier struct
         Tier memory newTier = Tier({
             tierId: currentTierId,
             tierFee: _param.tierFee,
-            members: members,
+            totalMembers: 0,
             sizeLimit: _param.sizeLimit,
             tierData: _param.tierData
         });
