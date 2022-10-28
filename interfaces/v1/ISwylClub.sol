@@ -21,13 +21,16 @@ interface ISwylClub {
     *
     * @param date           uint256 - uinx timestamp when a Club is created.
     *
-    * @param currency       address - The address of the currency to be used.
+    * @param currency       address - the address of the currency to be used.
+    *
+    * @param totalMembers   uint256 - the total number of members who subscribe to the club.
     */
     struct Club {
         uint256 clubId;
         address clubOwner;
         uint256 date;
         address currency;
+        uint256 totalMembers;
     }
 
     /** 
