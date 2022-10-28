@@ -511,14 +511,24 @@ contract SwylClub is
     }
 
 
-    /// @dev Returns an array of Tier that a `_clubOwner` has
+    /// @dev Returns an array of Tier based on `_clubId`
     function getTiersAt(uint256 _clubId) public view returns (Tier[] memory) {
         return totalTiers[_clubId];
     }
 
-    /// @dev Returns an array of Tier that a `_clubOwner` has
+    /// @dev Returns a specific Tier based on `_clubId` & `_tierId`
     function getTier(uint256 _clubId, uint256 _tierId) public view returns (Tier memory) {
         return totalTiers[_clubId][_tierId];
+    }
+
+    /// @dev Returns an array of Subscription based on `_clubId` & `_tierId`
+    function getSubscriptionsAt(uint256 _clubId, uint256 _tierId) public view returns (Subscription[] memory) {
+        return totalSubscriptions[_clubId][_tierId];
+    }
+
+    /// @dev Returns a specific Subscription based on `_clubId`, `_tierId` & `_subscriptionId`
+    function getSubscription(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view returns (Subscription memory) {
+        return totalSubscriptions[_clubId][_tierId][_subscriptionId];
     }
 
 
