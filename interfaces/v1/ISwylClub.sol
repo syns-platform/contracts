@@ -102,7 +102,9 @@ interface ISwylClub {
     /** 
     * @notice For use in `subscribe()` as a parameter type.
     *
-    * @param clubOwner      address - the address of the owner of the club to be subscribed.
+    * @param clubId         uint256 - the uid of the club.
+    *
+    * @param clubOwner      address - the address of the club's owner.
     *
     * @param tierId         uint256 - the uid of the Tier to be subscribed.
     *
@@ -111,7 +113,8 @@ interface ISwylClub {
     * @param currency       address - the address of the accepted currency.
     */
     struct SubscribeParam {
-        uint256 clubOwner;
+        uint256 clubId;
+        address clubOwner;
         uint256 tierId;
         uint256 tierFee;
         address currency;
