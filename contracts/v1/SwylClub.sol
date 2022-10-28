@@ -455,6 +455,51 @@ contract SwylClub is
         );
     }
 
+    /*///////////////////////////////////////////////////////////////
+                            Internal Checkers
+    //////////////////////////////////////////////////////////////*/
+
+
+    /**
+    * @dev Checks if a subscriber has already subscribed to a club
+    *
+    * @param _clubId        uint256 - the uid of the club.
+    *
+    * @param _subscriber    address - the address of the subscribing caller.
+    *
+    * @return bool          true if the subscriber has already subscribed and vice versa.
+    */
+    function checkIsSubsribed(uint256 _clubId, address _subscriber) internal view returns (bool) {
+        Tier[] memory targetTiers = totalTiers[_clubId];
+
+        for (uint256 i = 0; i < targetTiers.length; i++) {
+            Subscription[] memory currentSubscriptions = totalSubscriptions[_clubId][i];
+
+            for (uint256 j = 0; j < currentSubscriptions.length; j++) {
+                if (currentSubscriptions[j].subscriber == _subscriber) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+
+    /**
+    * @dev Checks if the tier's sizeLimit has reached the max limit
+    *
+    * @param _clubId        uint256 - the uid of the club.
+    *
+    * @param _tierId        uint256 - the uid of the tier.
+    */
+    function checkIsLimit(uint256 _clubId, uint256 _tierId) internal view {
+        // get target tier
+        Tier memory targetTier = getTier(_clubId, _tierId);
+
+        // Compare total members with sizeLimit
+        require(targetTier.totalMembers < targetTier.sizeLimit,"!SIZE_LIMIT");
+    }
     
     /*///////////////////////////////////////////////////////////////
                             Getter functions
