@@ -124,19 +124,26 @@ interface ISwylClub {
     /** 
     * @notice The information of a subscription
     *
-    * @param subscriptionId         uint256 - the uid of a subscription
+    * @param subscriptionId         uint256 - the uid of a subscription.
     *
-    * @param clubId                 uint256 - the uid of the subscripted club
+    * @param clubId                 uint256 - the uid of the subscripted club.
     *
-    * @param tierId                 uint256 - the uid of the subscripted tier
+    * @param tierId                 uint256 - the uid of the subscripted tier.
     *
-    * @param subsriptor             address - the address of the subscriptor
+    * @param subscriber             address - the address of the subscriber.
+    *
+    * @param dateStart              uint256 - the unix timestamp to keep track of start date.
+    *
+    * @param nextPayment            uint256 - the unix timestamp to keep track of when the next payment is due.
+    *                                         Always equal dateStart + 2629743 seconds (30.44 days - 1 month)
     */
     struct Subscription {
         uint256 subscriptionId;
         uint256 clubId;
         uint256 tierId;
-        address subscriptor;
+        address subscriber;
+        uint256 dateStart;
+        uint256 nextPayment;
     }
 
 

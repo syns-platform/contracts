@@ -321,7 +321,7 @@ contract SwylClub is
         // check if tier's sizelimit has already reached the limit
         checkIsLimit(_param.clubId, _param.tierId);
 
-        // @TODO check if the clubOwner matches the clubOwner of the tier
+        // check if the clubOwner matches the clubOwner of the tier
         require(_param.clubOwner == getClubAt(_param.clubId).clubOwner, "!NOT_OWNER - club owner in parameter do not match club owner in club with clubId in parememter");
         
 
@@ -347,7 +347,9 @@ contract SwylClub is
             subscriptionId: currentSubscriptionId,
             clubId: _param.clubId,
             tierId: _param.tierId,
-            subscriber: _msgSender()
+            subscriber: _msgSender(),
+            dateStart: block.timestamp,
+            nextPayment: block.timestamp + 2629743 // unix time for 30.44 days (1 month)
         });
 
         // push newSubscriptions to the global state
