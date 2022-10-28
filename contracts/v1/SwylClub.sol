@@ -381,6 +381,80 @@ contract SwylClub is
                             Internal functions
     //////////////////////////////////////////////////////////////*/
 
+    /**
+    *  @dev validate the fund of the `_donator`
+    *
+    *  @param _subscriber           address - the address who is paying for the subscription
+    *
+    *  @param _currency             address - the address of the currency to buy
+    *
+    *  @param _totalAmount          uint256 - the total subscription to be transferred
+    */
+    function validateFund(address _subscriber, address _currency, uint256 _totalAmount) internal {
+        // Check buyer owns and has approved sufficient currency for sale
+        if (_currency == CurrencyTransferLib.NATIVE_TOKEN) { // if currency is native token of a chain
+            require(msg.value == _totalAmount, "!FUND - msg.value does not match total club fee");
+        } else { // if currency is custom ERC20 token
+            validateERC20BalAndAllowance(_subscriber, _currency, _totalAmount);
+        }
+    }
+
+    /**
+    *  @dev validate ERC20 tokens
+    *
+    *  @param _addressToCheck                       address - the address to check against with
+    *
+    *  @param _currency                             address - the address of the currency to check
+    *
+    *  @param _currencyAmountToCheckAgainst         uint256 - the total currency amount to check
+    *
+    *  NOTE Openzepplin/IERC20Upgradeable - allowance api returns the remaining number of tokens 
+    *                                       that spender (i.e. Club address) will be allowed to spend 
+    *                                       on behalf of owner (i.e. _buyer) through transferFrom. This is zero by default.
+    */
+    function validateERC20BalAndAllowance(
+        address _addressToCheck,
+        address _currency,
+        uint256 _currencyAmountToCheckAgainst
+    ) internal view {
+        require(
+            IERC20Upgradeable(_currency).balanceOf(_addressToCheck) >= _currencyAmountToCheckAgainst &&
+            IERC20Upgradeable(_currency).allowance(_addressToCheck, address(this)) >= _currencyAmountToCheckAgainst,
+            "!BALANCE20 - insufficient balance"
+        );
+    }
+
+
+    /**
+    *  @dev Pays out the transaction
+    *
+    *  @param _subscriber                   address - the address that pays the tier fee amount
+    *
+    *  @param _clubOwner                    address - the address that receives the tier fee amount
+    *
+    *  @param _currencyToUse                address - the address of the currency passed in
+    *
+    *  @param _totalPayoutAmount            uint256 - the total currency amount to pay
+    */
+    function payout (
+        address _subscriber,
+        address _clubOwner,
+        address _currencyToUse,
+        uint256 _totalPayoutAmount
+    ) internal {
+        // Get nativeTokenWrapper address
+        address _nativeTokenWrapper = nativeTokenWrapper;
+
+        // Transfer the total amount from _subscriber to _clubOwner
+        CurrencyTransferLib.transferCurrencyWithWrapper(
+            _currencyToUse, 
+            _subscriber, 
+            _clubOwner, 
+            _totalPayoutAmount,
+            _nativeTokenWrapper
+        );
+    }
+
     
     /*///////////////////////////////////////////////////////////////
                             Getter functions
