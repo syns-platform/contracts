@@ -40,7 +40,7 @@ interface ISwylClub {
     *
     * @param tierFee        uin256 - the price per month of the tier.
     *
-    * @param members        address[] - an array of members' address.
+    * @param totalMembers   uint256 - the total number of members in this tier
     *
     * @param sizeLimit      uint256 - an optional choice if club's owner wants to limit the size of a certain tier.
     *
@@ -54,7 +54,7 @@ interface ISwylClub {
     struct Tier {
         uint256 tierId;
         uint256 tierFee;
-        address[] members;
+        uint256 totalMembers;
         uint256 sizeLimit;
         string tierData;
     }
