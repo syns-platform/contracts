@@ -58,6 +58,9 @@ contract SwylClub is
     /// @dev Mapping from a clubId => Tier[]
     mapping(uint256 => Tier[]) private totalTiers;
 
+    /// @dev Mapping from a clubId => (tierId => Subscription[])
+    mapping(uint256 => mapping(uint256 => Subscription[])) private totalSubscriptions;
+
 
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
@@ -160,7 +163,7 @@ contract SwylClub is
 
 
      /*///////////////////////////////////////////////////////////////
-                Donation (create-update-cancel) logic
+                Club (create-update-cancel) logic
     //////////////////////////////////////////////////////////////*/
 
 
