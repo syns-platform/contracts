@@ -1,24 +1,30 @@
-// addTierParam
 {
-    "clubId": "0", 
-    "tierFee": "2000000000000000", 
-    "sizeLimit":"2", 
-    "tierData":"book"
-}
-
-// subScribeParam
-{
-    "clubId":"0", 
-    "clubOwner":"0xfA0D311F4f3be671f414c2B3b998323eC25c5AFD",
-    "tierId":"0",
+  "addTierParam": {
+    "clubId": "0",
     "tierFee": "2000000000000000",
-    "currency":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-}
+    "sizeLimit": "2",
+    "tierData": "book"
+  },
 
-{
+  "subScribeParam": {
+    "clubId": "0",
+    "clubOwner": "0xfA0D311F4f3be671f414c2B3b998323eC25c5AFD",
+    "tierId": "0",
+    "tierFee": "2000000000000000",
+    "currency": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+
+  "updateTierParam": {
     "clubId": "0",
     "tierId": "0",
     "tierFee": "2000000000000000",
     "sizeLimit": "2",
     "tierData": "data"
+  },
+
+  "monthlyPayment": {
+    "clubId": "0",
+    "clubOwner": "0xfA0D311F4f3be671f414c2B3b998323eC25c5AFD",
+    "tierId": "1"
+  }
 }
