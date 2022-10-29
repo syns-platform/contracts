@@ -137,7 +137,7 @@ interface ISwylClub {
     * @param nextPayment            uint256 - the unix timestamp to keep track of when the next payment is due.
     *                                         Always equal dateStart + 2629743 seconds (30.44 days - 1 month)
     *
-    * param passedDue              bool - true if the subscriber doesn't pay TierFee within the right Tier period
+    * @param royaltyStars           uint256 - updates at the end of every Tier period
     */
     struct Subscription {
         uint256 subscriptionId;
@@ -146,7 +146,32 @@ interface ISwylClub {
         address subscriber;
         uint256 dateStart;
         uint256 nextPayment;
-        // bool passedDue;
+        uint256 royaltyStars;
+    }
+
+
+    /** 
+    * @notice For use in `subscribe()` as a parameter type.
+    *
+    * @param clubId         uint256 - the uid of the club.
+    *
+    * @param clubOwner      address - the address of the club's owner.
+    *
+    * @param tierId         uint256 - the uid of the Tier to be subscribed.
+    *
+    * @param tierFee        uint256 - the amount the account is expected to cover to subscribe to the Tier.
+    *
+    * @param currency       address - the address of the accepted currency.
+    *
+    * @param subscriptionId uint256 - the uid of the subscription.
+    */
+    struct MonthlyTierFeeParam {
+        uint256 clubId;
+        address clubOwner;
+        uint256 tierId;
+        uint256 tierFee;
+        address currency;
+        uint256 subscriptionId;
     }
 
 
@@ -166,10 +191,13 @@ interface ISwylClub {
     event TierDeleted(uint256 indexed tierId, address indexed clubOwner, Tier[] tiers);
 
     /// @dev Emitted when a subscription is made
-    event NewSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
+    event NewSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription subscription);
 
     /// @dev Emitted when a subscription is canceled
-    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription[] subscriptions);
+    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription[] subscriptions);
+
+    // @dev Emitted when a monthlyTierFee transaction is made
+    event MonthlyTierFee(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription subscriptions);
 
     
 
@@ -232,9 +260,17 @@ interface ISwylClub {
     *
     * @param _tierId     uint256 - the uid of the tier to be unsubscribed.
     *
-    * * @param _subscriptionId    uint256 - the uid of the subscription to be executed.
+    * @param _subscriptionId    uint256 - the uid of the subscription to be executed.
     */
     function unsubscribe(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) external;
+
+
+    /**
+    * @notice Lets a subscriber pays the Tier fee
+    *
+    * @param _param     MonthlyTierFeeParam - the parameter that governs the monthly tier fee payment.
+    */
+    function payMonthlyTierFee(MonthlyTierFeeParam memory _param) external payable;
 
 }   
 
