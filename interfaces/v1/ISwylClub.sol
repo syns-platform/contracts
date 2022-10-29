@@ -24,6 +24,8 @@ interface ISwylClub {
     * @param currency       address - the address of the currency to be used.
     *
     * @param totalMembers   uint256 - the total number of members who subscribe to the club.
+    *
+    * @param totalActiveMembers     uint256 - the total number of members who pay Tier Fee on time in this club
     */
     struct Club {
         uint256 clubId;
@@ -31,30 +33,34 @@ interface ISwylClub {
         uint256 date;
         address currency;
         uint256 totalMembers;
+        uint256 totalActiveMembers;
     }
 
     /** 
     * @notice The information of a tier plan.
     *
-    * @param tierId         uin256 - the unique id of a tier
+    * @param tierId                 uin256 - the unique id of a tier
     *
-    * @param tierFee        uin256 - the price per month of the tier.
+    * @param tierFee                uin256 - the price per month of the tier.
     *
-    * @param totalMembers   uint256 - the total number of members in this tier
+    * @param totalMembers           uint256 - the total number of members in this tier
     *
-    * @param sizeLimit      uint256 - an optional choice if club's owner wants to limit the size of a certain tier.
+    * @param totalActiveMembers     uint256 - the total number of members who pay Tier Fee on time in this tier
     *
-    * @param tierData       string - the off-chain URI to the JSON typed metadata of the tier includes:
-    *                                   (1) Tier's name
-    *                                   (2) Tier's benefit
-    *                                   (3) Tier's description
-    *                                   (4) Tier's image
-    *                                   (5) Tier's message
+    * @param sizeLimit              uint256 - an optional choice if club's owner wants to limit the size of a certain tier.
+    *
+    * @param tierData               string - the off-chain URI to the JSON typed metadata of the tier includes:
+    *                                           (1) Tier's name
+    *                                           (2) Tier's benefit
+    *                                           (3) Tier's description
+    *                                           (4) Tier's image
+    *                                           (5) Tier's message
     */
     struct Tier {
         uint256 tierId;
         uint256 tierFee;
         uint256 totalMembers;
+        uint256 totalActiveMembers;
         uint256 sizeLimit;
         string tierData;
     }
@@ -138,6 +144,8 @@ interface ISwylClub {
     *                                         Always equal dateStart + 2629743 seconds (30.44 days - 1 month)
     *
     * @param royaltyStars           uint256 - updates at the end of every Tier period
+    *
+    * @param activeMember           bool - true this subscriber pay Tier Fee on time
     */
     struct Subscription {
         uint256 subscriptionId;
@@ -147,6 +155,7 @@ interface ISwylClub {
         uint256 dateStart;
         uint256 nextPayment;
         uint256 royaltyStars;
+        bool activeMember;
     }
 
 
@@ -193,11 +202,17 @@ interface ISwylClub {
     /// @dev Emitted when a subscription is made
     event NewSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription subscription);
 
+    /// @dev Emitted when a re-subscription is made
+    event ReSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription subscription);
+
     /// @dev Emitted when a subscription is canceled
     event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription[] subscriptions);
 
     // @dev Emitted when a monthlyTierFee transaction is made
     event MonthlyTierFee(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriber, Subscription subscriptions);
+
+    // @dev Emitted when a cleanUpClub transaction is made
+    event DeactivateMembersInTier(uint256 indexed clubId, uint256 indexed tierId, uint256 totalDeactivatedMembers);
 
     
 
@@ -271,6 +286,20 @@ interface ISwylClub {
     * @param _param     MonthlyTierFeeParam - the parameter that governs the monthly tier fee payment.
     */
     function payMonthlyTierFee(MonthlyTierFeeParam memory _param) external payable;
+
+
+    /**
+    * @notice Let's a club owner clean up subscribers who passed the due dates and the three-day-merci period for monthly Tier fee.
+    *
+    * @notice When executed, subscribers who missed the passed due date will be wipe off and loose all the royaltyStars.
+    *
+    * @param _clubId    uint256 - the uid of the club being cleaned up.
+    *
+    * @param _tierId    uint256 - the uid of the tier being cleaned up.
+    */
+    function deactivateMembersInTier(uint256 _clubId, uint256 _tierId) external;
+
+
 
 }   
 
