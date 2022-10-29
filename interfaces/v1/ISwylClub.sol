@@ -136,6 +136,8 @@ interface ISwylClub {
     *
     * @param nextPayment            uint256 - the unix timestamp to keep track of when the next payment is due.
     *                                         Always equal dateStart + 2629743 seconds (30.44 days - 1 month)
+    *
+    * param passedDue              bool - true if the subscriber doesn't pay TierFee within the right Tier period
     */
     struct Subscription {
         uint256 subscriptionId;
@@ -144,6 +146,7 @@ interface ISwylClub {
         address subscriber;
         uint256 dateStart;
         uint256 nextPayment;
+        // bool passedDue;
     }
 
 
@@ -166,7 +169,7 @@ interface ISwylClub {
     event NewSubscription(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
 
     /// @dev Emitted when a subscription is canceled
-    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription subscription);
+    event SubscriptionCancel(uint256 indexed subscriptionId, uint256 indexed tierId, address subscriptor, Subscription[] subscriptions);
 
     
 
@@ -228,8 +231,10 @@ interface ISwylClub {
     * @param _clubId     uint256 - the uid of the club holding the tier to be unsubscribed.
     *
     * @param _tierId     uint256 - the uid of the tier to be unsubscribed.
+    *
+    * * @param _subscriptionId    uint256 - the uid of the subscription to be executed.
     */
-    function unsubscribe(uint256 _clubId, uint256 _tierId) external;
+    function unsubscribe(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) external;
 
 }   
 
