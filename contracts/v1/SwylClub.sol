@@ -462,11 +462,10 @@ contract SwylClub is
         Subscription storage targetSubscription = totalSubscriptions[_param.clubId][_param.tierId][_param.subscriptionId];
 
         // validate the subscriber can only pay for the Tier Fee no earlier than 6 days unix time until due date
-        // require(block.timestamp >= targetSubscription.nextPayment - SIX_DAY_EARLY, "!DUE_DATE - Cannot pay more than 6 days earlier than the due date.");
+        require(block.timestamp >= targetSubscription.nextPayment - SIX_DAY_EARLY, "!DUE_DATE - Cannot pay more than 6 days earlier than the due date.");
 
         // validate the subscriber can only pay for the Tier Fee no later than 3 days after due date
-        // require(block.timestamp <=targetSubscription.nextPayment + THREE_DAY_MERCI, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
-        require(block.timestamp <=targetSubscription.dateStart + 60, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
+        require(block.timestamp <=targetSubscription.nextPayment + THREE_DAY_MERCI, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
 
         /// @dev validate fund for MonthlyFee tx
         validateFund(_msgSender(), _param.currency, _param.tierFee);
