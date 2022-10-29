@@ -79,9 +79,9 @@ contract SwylClub is
     }
 
 
-    /// @dev Checks where a Club exists
+    /// @dev Checks whether a Club exists
     modifier onlyExistingClub(uint256 _clubId) {
-        require(totalClubs[_clubId].clubOwner != address(0), "DNE");
+        require(totalClubs[_clubId].clubOwner != address(0), "CDNE");
         _;
     }
 
@@ -370,11 +370,47 @@ contract SwylClub is
     /** 
     * @notice Lets a subscriber unsubscribe a Tier 
     *
-    * @param _clubId     uint256 - the uid of the club holding the tier to be unsubscribed.
+    * @param _clubId            uint256 - the uid of the club holding the tier to be unsubscribed.
     *
-    * @param _tierId     uint256 - the uid of the tier to be unsubscribed.
+    * @param _tierId            uint256 - the uid of the tier to be unsubscribed.
+    *
+    * @param _subscriptionId    uint256 - the uid of the subscription to be executed.
     */
-    function unsubscribe(uint256 _clubId, uint256 _tierId) external override {}
+    function unsubscribe(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) external override onlyExistingClub(_clubId){
+        // checks if caller is a member of the club
+        bool isSubscribed = checkIsSubsribed(_clubId, _msgSender());
+        require(isSubscribed, "!NOT_SUBSCRIBED");
+
+        // double checks if the caller is the owner of the Subscription
+        require(getSubscription(_clubId, _tierId, _subscriptionId).subscriber == _msgSender(), "!SUBSCRIBER - the caller is not the owner of the subscription");
+
+        // get target Tier array
+        Tier[] memory targetTiers = totalTiers[_clubId];
+
+        // validate `_tierId`
+        require(_tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
+
+        // get targetSubscriptions
+        Subscription[] storage targetSubscriptions = totalSubscriptions[_clubId][_tierId];
+
+        // delete the subscription out of the targetSubscriptions array
+        for (uint256 i = _subscriptionId; i < targetSubscriptions.length - 1; i++) {
+            targetSubscriptions[i] = targetSubscriptions[i+1];
+        }
+        targetSubscriptions.pop();
+
+        // update global `totalSubscriptions`
+        totalSubscriptions[_clubId][_tierId] = targetSubscriptions;
+
+        // update totalMembers in targetTier
+        totalTiers[_clubId][_tierId].totalMembers --;
+
+        // update totalMembers in targetClub
+        totalClubs[_clubId].totalMembers--;
+
+        // emit SubscriptionCancel event
+        emit SubscriptionCancel(_subscriptionId, _tierId, _msgSender(), targetSubscriptions);
+    }
 
 
 
@@ -486,8 +522,6 @@ contract SwylClub is
         return false;
     }
 
-
-
     /**
     * @dev Checks if the tier's sizeLimit has reached the max limit
     *
@@ -503,6 +537,21 @@ contract SwylClub is
         require(targetTier.totalMembers < targetTier.sizeLimit,"!SIZE_LIMIT");
     }
     
+
+    /**
+    * @dev Checks if a subscriber has passed the nextPayment due date
+    * 
+    * @notice Swyl will have a 3-day-mercy-policy which means if a subscriber missed the nextPayment due date for 3 days, 
+    *         the subscriber will automatically be removed from the current Tier
+    *
+    * @param _clubId            uint256 - the uid of the club.
+    *
+    * @param _tierId            uint256 - the uid of the tier.
+    *
+    * @param _subscriptionId    uint256 - the uid of the subscription
+    *
+    */
+
     /*///////////////////////////////////////////////////////////////
                             Getter functions
     //////////////////////////////////////////////////////////////*/
