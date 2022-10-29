@@ -183,7 +183,7 @@ contract SwylClub is
     */
     function startClub(address _currency) external override {
         // stop a club's owner to create a second club
-        require(!hasRole(CLUB_OWNER_ROLE, _msgSender()), "!NOT ALOOWED - account already has a club");
+        require(!hasRole(CLUB_OWNER_ROLE, _msgSender()), "!NOT ALLOWED - account already has a club");
 
         // grant CLUB_OWNER_ROLE to the caller
         _setupRole(CLUB_OWNER_ROLE, _msgSender());
@@ -192,13 +192,14 @@ contract SwylClub is
         uint256 currentId = totalNumberClubs;
 
         // start a new Club
-        // Tier[] memory tiers;
+        /// @notice see struct `ISwylClub/Club` for more info
         Club memory newClub = Club({
             clubId: currentId,
             clubOwner: _msgSender(),
             date: block.timestamp,
             currency: _currency,
-            totalMembers: 0
+            totalMembers: 0,
+            totalActiveMembers: 0
         });
 
         // update global `toalClubs`
@@ -230,10 +231,12 @@ contract SwylClub is
 
 
         // initialize newTier struct
+        /// @notice see struct `ISwylClub/Tier` for more info
         Tier memory newTier = Tier({
             tierId: currentTierId,
             tierFee: _param.tierFee,
             totalMembers: 0,
+            totalActiveMembers: 0,
             sizeLimit: _param.sizeLimit,
             tierData: _param.tierData
         });
@@ -303,13 +306,15 @@ contract SwylClub is
         // validate if `_param.tierId` points to a valid Tier
         require(_tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
 
-        // shift items toward to cover the target deleted tier => eventually create duplicating last item
+        // shift items toward to cover the target deleted tier => eventually create a duplicating on the last item
         for (uint256 i = _tierId; i < targetTiers.length - 1; i++) {
             targetTiers[i] = targetTiers[i+1];
+            totalSubscriptions[_clubId][i] = totalSubscriptions[_clubId][i+1];
         }
 
         // remove the last item
         targetTiers.pop();
+        delete totalSubscriptions[_clubId][targetTiers.length];
 
         // updated global `totalClubs` state
         totalTiers[_clubId] = targetTiers;
@@ -320,7 +325,7 @@ contract SwylClub is
         emit TierDeleted(_tierId, _msgSender(), targetTiers);
     }
 
-    // @TODO delete all tiers
+    // @TODO delete all tiers - Features come in version 2.0
 
 
     /** 
@@ -330,16 +335,26 @@ contract SwylClub is
     *                                          See struct `ISwylClub/SubscriptionAPIParam` for more details.
     */
     function subsribe(SubscribeParam memory _param) external payable override nonReentrant onlyExistingClub(_param.clubId){
-        // check if _msgSender() has already subscribed
-        bool isSubscribed = checkIsSubsribed(_param.clubId, _msgSender());
-        require(!isSubscribed, "SUBSCRIBED");
+        // check if the caller has already subscribed and an an active member
+        (bool isActiveMember, uint256 existedTierId, uint256 existedSubscriptionId) = checkIsActiveMember(_param.clubId, _msgSender());
 
-        // check if tier's sizelimit has already reached the limit
-        checkIsLimit(_param.clubId, _param.tierId);
+        // the caller must not be an active member to subscribe.
+        // logic: user that has subscribed before but is not an active member can resubscribe again to the Tier
+        require(!isActiveMember, "SUBSCRIBED & ACTIVE");
+
+        // if the user has subscribed but inactive and the existedTierId != type(uint256).max => the subscription already existed.
+        // existedTierId must equal _param.tierId
+        if (existedTierId != type(uint256).max) {
+            require(existedTierId == _param.tierId, "!EXISTED_TIER_ID - subscription has already existed in another Tier");
+        }
+
+        // check if tier's sizelimit has already reached the limit if the caller hasn't subscirbed before
+        if (existedTierId != type(uint256).max && existedSubscriptionId != type(uint256).max) {
+            checkLimit(_param.clubId, _param.tierId);
+        }
 
         // check if the clubOwner matches the clubOwner of the tier
         require(_param.clubOwner == getClubAt(_param.clubId).clubOwner, "!NOT_OWNER - club owner in parameter do not match club owner in club with clubId in parememter");
-        
 
         // get target Tier array
         Tier[] storage targetTiers = totalTiers[_param.clubId];
@@ -348,7 +363,7 @@ contract SwylClub is
         require(_param.tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
 
         // validate the passed in `_param.tierFee` against the fee of the Tier
-        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - _param.tierFee does not match the fee of the Tier");
+        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - tierFee parameter does not match the fee of the Tier");
         
         /// @dev validate fund for subscribing tx
         validateFund(_msgSender(), _param.currency, _param.tierFee);
@@ -356,33 +371,60 @@ contract SwylClub is
         /// @dev payout the club fee
         payout(_msgSender(), _param.clubOwner, _param.currency, _param.tierFee);
 
-        // get current subscriptionId
-        Subscription[] storage subscriptions = totalSubscriptions[_param.clubId][_param.tierId];
-        uint256 currentSubscriptionId = subscriptions.length;
+        // check if existedTierId and existedSubscriptionId are valid Ids
+        // if valid, updated existed subscription
+        if (existedTierId != type(uint256).max && existedSubscriptionId != type(uint256).max) {
+            // get the existedSubscription
+            Subscription storage existedSubscription = totalSubscriptions[_param.clubId][existedTierId][existedSubscriptionId];
 
-        // init newSubscription
-        Subscription memory newSubscription = Subscription({
-            subscriptionId: currentSubscriptionId,
-            clubId: _param.clubId,
-            tierId: _param.tierId,
-            subscriber: _msgSender(),
-            dateStart: block.timestamp,
-            nextPayment: block.timestamp + TIER_PERIOD, // unix time for 30.44 days (1 month)
-            royaltyStars: 1
-        });
+            // update only the dateStart, nextPayment, royaltyStars, and activeMembers fields
+            existedSubscription.dateStart = block.timestamp;
+            // existedSubscription.nextPayment = block.timestamp + TIER_PERIOD; // unix time for 30.44 days (1 month)
+            existedSubscription.nextPayment = block.timestamp + 120;
+            existedSubscription.royaltyStars = 1;
+            existedSubscription.activeMember =  true;
 
-        // push newSubscriptions to the global state
-        subscriptions.push(newSubscription);
-        totalSubscriptions[_param.clubId][_param.tierId] = subscriptions;
+            // update totalActiveMembers in Tier and Club
+            totalClubs[_param.clubId].totalActiveMembers++;
+            totalTiers[_param.clubId][existedTierId].totalActiveMembers++;
 
-        // update totalMembers in Tier struct
-        totalTiers[_param.clubId][_param.tierId].totalMembers ++;
+            // emit ReSubscription event
+            emit ReSubscription(existedSubscriptionId, existedTierId, _msgSender(), existedSubscription);
 
-        // update totalMembers in Club struct
-        totalClubs[_param.clubId].totalMembers ++;
+        } else { // New member
+            // get current subscriptionId
+            Subscription[] storage subscriptions = totalSubscriptions[_param.clubId][_param.tierId];
+            uint256 currentSubscriptionId = subscriptions.length;
 
-        // emit NewSubscription event
-        emit NewSubscription(currentSubscriptionId, _param.tierId, _msgSender(), newSubscription);
+            // init newSubscription
+            /// @notice see struct `ISwylClub/Subscription` for more info 
+            Subscription memory newSubscription = Subscription({
+                subscriptionId: currentSubscriptionId,
+                clubId: _param.clubId,
+                tierId: _param.tierId,
+                subscriber: _msgSender(),
+                dateStart: block.timestamp,
+                // nextPayment: block.timestamp + TIER_PERIOD, // unix time for 30.44 days (1 month)
+                nextPayment: block.timestamp + 120, // TESTING PURPOSE
+                royaltyStars: 1,
+                activeMember: true
+            });
+
+            // push newSubscriptions to the global state
+            subscriptions.push(newSubscription);
+            totalSubscriptions[_param.clubId][_param.tierId] = subscriptions;
+
+            // update totalMembers & totalActiveMembers in Tier struct
+            totalTiers[_param.clubId][_param.tierId].totalMembers ++;
+            totalTiers[_param.clubId][_param.tierId].totalActiveMembers ++;
+
+            // update totalMembers & totalActiveMembers in Club struct
+            totalClubs[_param.clubId].totalMembers ++;
+            totalClubs[_param.clubId].totalActiveMembers ++;
+
+            // emit NewSubscription event
+            emit NewSubscription(currentSubscriptionId, _param.tierId, _msgSender(), newSubscription);
+        }
     }
 
 
@@ -409,6 +451,9 @@ contract SwylClub is
         // validate of the passed in `_param.subscriptionId` points at a valid subscription
         require(_subscriptionId < getSubscriptionsAt(_clubId, _tierId).length, "!SUBSCRIPTION - subscription not found with `_param.subscriptionId`");
 
+        // check to see if the user was an active user before unsubscribe
+        (bool isActive,,) = checkIsActiveMember(_clubId, _msgSender());
+
         // get targetSubscriptions
         Subscription[] storage targetSubscriptions = totalSubscriptions[_clubId][_tierId];
 
@@ -421,12 +466,17 @@ contract SwylClub is
         // update global `totalSubscriptions`
         totalSubscriptions[_clubId][_tierId] = targetSubscriptions;
 
-        // update totalMembers in targetTier
-        totalTiers[_clubId][_tierId].totalMembers --;
 
-        // update totalMembers in targetClub
+        // update totalMembers in targetTier and targetClub
+        totalTiers[_clubId][_tierId].totalMembers --;
         totalClubs[_clubId].totalMembers--;
 
+        // update totalActiveMembers in targetTier and targetClub if this subscriber is an active member
+        if (isActive) {
+            totalTiers[_clubId][_tierId].totalActiveMembers --;
+            totalClubs[_clubId].totalActiveMembers--;
+        }
+        
         // emit SubscriptionCancel event
         emit SubscriptionCancel(_subscriptionId, _tierId, _msgSender(), targetSubscriptions);
     }
@@ -453,7 +503,7 @@ contract SwylClub is
         require(_param.tierId < totalTiers[_param.clubId].length, "!TIER_ID - invalid _param.tierId.");
 
         // validate the passed in `_param.tierFee` against the fee of the Tier
-        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - _param.tierFee does not match the fee of the Tier.");
+        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - tierFee in parameter does not match the fee of the Tier.");
 
         // validate of the passed in `_param.subscriptionId` points at a valid subscription
         require(_param.subscriptionId < getSubscriptionsAt(_param.clubId, _param.tierId).length, "!SUBSCRIPTION - subscription not found with `_param.subscriptionId.`");
@@ -465,7 +515,8 @@ contract SwylClub is
         require(block.timestamp >= targetSubscription.nextPayment - SIX_DAY_EARLY, "!DUE_DATE - Cannot pay more than 6 days earlier than the due date.");
 
         // validate the subscriber can only pay for the Tier Fee no later than 3 days after due date
-        require(block.timestamp <=targetSubscription.nextPayment + THREE_DAY_MERCI, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
+        // require(block.timestamp <=targetSubscription.nextPayment + THREE_DAY_MERCI, "!DUE_DATE - Missed the 3-day-merci period. Please re-subscribe again!");
+        require(block.timestamp <=targetSubscription.nextPayment + 120, "!DUE_DATE - TESTING PURPOSE");
 
         /// @dev validate fund for MonthlyFee tx
         validateFund(_msgSender(), _param.currency, _param.tierFee);
@@ -488,6 +539,58 @@ contract SwylClub is
     }
 
 
+    /**
+    * @notice Let's a club owner de-activate subscribers who passed the due dates and the three-day-merci period for monthly Tier fee.
+    *
+    * @notice When executed, subscribers who missed the passed due date will be wipe off and loose all the royaltyStars.
+    *
+    * @param _clubId    uint256 - the uid of the club being cleaned up.
+    *
+    * @param _tierId    uint256 - the uid of the tier being cleaned up.
+    */
+    function deactivateMembersInTier(uint256 _clubId, uint256 _tierId) external override onlyClubOwner(_clubId) onlyClubOwnerRole() onlyExistingClub(_clubId){
+        // init totalDeactivatedMembers to keep track of the total number of members got deactivated
+        uint256 totalDeactivatedMembers;
+
+        // get current subscriptions of the tier
+        Subscription[] storage currentSubscriptions = totalSubscriptions[_clubId][_tierId];
+
+        // set currentTime
+        uint256 currentTime = block.timestamp;
+
+        // loop through currentSubscriptions to check which subscription hasn't pay Tier Fee
+        for (uint256 i = 0; i < currentSubscriptions.length; i++) {
+            // calculate due date based on subscription's `nextPayment` and `merci`
+            // uint256 dueDate = currentSubscriptions[i].nextPayment + THREE_DAY_MERCI;
+            uint256 dueDate = currentSubscriptions[i].nextPayment;
+
+            // check if this is an active member
+            bool isActive = currentSubscriptions[i].activeMember;
+
+            // if currentTime > dueDate => this account is getting deactivated
+            if (currentTime > dueDate && isActive) {
+                // increment the totalDeactivatedMembers
+                totalDeactivatedMembers++;
+
+                // de subscription at index i
+                currentSubscriptions[i].royaltyStars = 0;
+                currentSubscriptions[i].activeMember = false;
+            }
+        }
+
+        // update global totalSubscriptions
+        totalSubscriptions[_clubId][_tierId] = currentSubscriptions;
+
+        // update totalActiveMembers of club and tier
+        totalClubs[_clubId].totalActiveMembers = totalClubs[_clubId].totalActiveMembers - totalDeactivatedMembers;
+        totalTiers[_clubId][_tierId].totalActiveMembers = totalTiers[_clubId][_tierId].totalActiveMembers - totalDeactivatedMembers;
+
+        // emit CleanUpClub event
+        emit DeactivateMembersInTier(_clubId, _tierId, totalDeactivatedMembers);
+    }
+
+
+    //@TODO feature comes in V2.0: CleanUpTier lets clubOwner clean `inactive` subscriptions
 
 
     /*///////////////////////////////////////////////////////////////
@@ -568,10 +671,33 @@ contract SwylClub is
         );
     }
 
+    /** 
+    * @dev Returns the subscriptionId based on caller address
+    *
+    * @param _clubId        uint256 - the uid of the club. 
+    *
+    * @param _subscriber    address - address of the caller
+    *
+    * @return uint256       subscriptionId if subsribed or type(uint256).max if unsubscribe
+    */
+    function getSubscriptionId(uint256 _clubId, address _subscriber) internal view returns (uint256) {
+        Tier[] memory targetTiers = totalTiers[_clubId];
+
+        for (uint256 i = 0; i < targetTiers.length; i++) {
+            Subscription[] memory currentSubscriptions = totalSubscriptions[_clubId][i];
+
+            for (uint256 j = 0; j < currentSubscriptions.length; j++) {
+                if (currentSubscriptions[j].subscriber == _subscriber) {
+                    return j;
+                }
+            }
+        }
+        return type(uint256).max;
+    }
+
     /*///////////////////////////////////////////////////////////////
                             Internal Checkers
     //////////////////////////////////////////////////////////////*/
-
 
     /**
     * @dev Checks if a subscriber has already subscribed to a club
@@ -582,7 +708,7 @@ contract SwylClub is
     *
     * @return bool          true if the subscriber has already subscribed and vice versa.
     */
-    function checkIsSubsribed(uint256 _clubId, address _subscriber) internal view returns (bool) {
+    function checkIsSubsribed(uint256 _clubId, address _subscriber) public view returns (bool) {
         Tier[] memory targetTiers = totalTiers[_clubId];
 
         for (uint256 i = 0; i < targetTiers.length; i++) {
@@ -604,7 +730,7 @@ contract SwylClub is
     *
     * @param _tierId        uint256 - the uid of the tier.
     */
-    function checkIsLimit(uint256 _clubId, uint256 _tierId) internal view {
+    function checkLimit(uint256 _clubId, uint256 _tierId) public view {
         // get target tier
         Tier memory targetTier = getTier(_clubId, _tierId);
 
@@ -614,18 +740,38 @@ contract SwylClub is
     
 
     /**
-    * @dev Checks if a subscriber has passed the nextPayment due date
+    * @dev Checks if a subscriber is an active member by checking if the subscriber has paid the Tier fee on time
     * 
-    * @notice Swyl will have a 3-day-mercy-policy which means if a subscriber missed the nextPayment due date for 3 days, 
-    *         the subscriber will automatically be removed from the current Tier
-    *
     * @param _clubId            uint256 - the uid of the club.
     *
-    * @param _tierId            uint256 - the uid of the tier.
+    * @param _member            address - the address of the member being checkd against
     *
-    * @param _subscriptionId    uint256 - the uid of the subscription
+    * @return bool              true if the caller is an active member and vice versa
     *
+    * @return uint256           tierId
+    *
+    * @return uint256           subscriptionId
     */
+    function checkIsActiveMember(uint256 _clubId, address _member) public view returns (bool, uint256, uint256) {
+        Tier[] memory targetTiers = totalTiers[_clubId];
+
+        for (uint256 i = 0; i < targetTiers.length; i++) {
+            Subscription[] memory currentSubscriptions = totalSubscriptions[_clubId][i];
+
+            for (uint256 j = 0; j < currentSubscriptions.length; j++) {
+                if (currentSubscriptions[j].subscriber == _member) {
+                    // if (block.timestamp <= currentSubscriptions[j].nextPayment + THREE_DAY_MERCI) {
+                    if (block.timestamp <= currentSubscriptions[j].nextPayment) {
+                        return (true, i, j);
+                    } else {
+                        return (false, i, j);
+                    }
+                }
+            }
+        }
+        return (false, type(uint256).max, type(uint256).max);
+    }
+
 
     /*///////////////////////////////////////////////////////////////
                             Getter functions
@@ -635,7 +781,6 @@ contract SwylClub is
     function getClubAt(uint256 _clubId) public view returns (Club memory) {
         return totalClubs[_clubId];
     }
-
 
     /// @dev Returns an array of Tier based on `_clubId`
     function getTiersAt(uint256 _clubId) public view onlyExistingClub(_clubId) returns (Tier[] memory) {
@@ -656,7 +801,6 @@ contract SwylClub is
     function getSubscription(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view onlyExistingClub(_clubId) returns (Subscription memory) {
         return totalSubscriptions[_clubId][_tierId][_subscriptionId];
     }
-
 
     /// @dev Returns the duration one subscriber has been subscribing a Tier
     function getRoyaltyDuration(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view onlyExistingClub(_clubId) returns (uint256) {
