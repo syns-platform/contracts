@@ -47,6 +47,15 @@ contract SwylClub is
     /// @dev The total clubs have ever been created
     uint256 public totalNumberClubs;
 
+    /// @dev The three-day-merci for subscription - 3 days in unix timestamp
+    uint public constant THREE_DAY_MERCI = 259200;
+
+    /// @dev The SIX_DAY_EARLY for paying the subscription fee - 6 days in unix timestamp
+    uint public constant SIX_DAY_EARLY = 518400;
+
+    /// @dev The 1-month-tier-period to calculate tier's next payment - 1 month (30.44 days) in unix timestamp
+    uint public constant TIER_PERIOD = 2629746;
+
     
     /*///////////////////////////////////////////////////////////////
                                 Mappings
@@ -207,8 +216,8 @@ contract SwylClub is
     *
     * @dev Create a new Tier struct and add it to corresponding Club
     *
-    * @param _param     TierAPIParam - the parameter that governs the tier to be created.
-    *                                  See struct `TierAPIParam` for more info.
+    * @param _param     AddTierParam - the parameter that governs the tier to be created.
+    *                                  See struct `ISwylClub/AddTierParam` for more info.
     */
     function addTier(AddTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId){
         // param checks
@@ -243,8 +252,8 @@ contract SwylClub is
     /** 
     * @notice Lets a Club's owner update a Tier
     *
-    * @param _param     TierAPIParam - the parameter that governs the tier to be created.
-    *                                  See struct `TierAPIParam` for more details.
+    * @param _param     UpdateTierParam - the parameter that governs the tier to be created.
+    *                                  See struct `ISwylClub/UpdateTierParam` for more details.
     */
     function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId) {
         // param checks
@@ -285,7 +294,10 @@ contract SwylClub is
     * @param _tierId    uint256 - the uid of the tier to be deleted
     */
     function deleteTier(uint256 _clubId, uint256 _tierId) external override onlyClubOwner(_clubId) onlyClubOwnerRole() onlyExistingClub(_clubId) {
-         // get target Tier array
+        // CANNOT delete a Tier if there are still members in it
+        require(getSubscriptionsAt(_clubId, _tierId).length == 0, "!UNDELETEABLE - Cannot delete a Tier if there are still members in it. Please update Tier instead!");
+
+        // get target Tier array
         Tier[] storage targetTiers = totalTiers[_clubId];
 
         // validate if `_param.tierId` points to a valid Tier
@@ -302,16 +314,20 @@ contract SwylClub is
         // updated global `totalClubs` state
         totalTiers[_clubId] = targetTiers;
 
+        // @TODO update totalSubscription
+
         // emit TierDeleted event
         emit TierDeleted(_tierId, _msgSender(), targetTiers);
     }
+
+    // @TODO delete all tiers
 
 
     /** 
     * @notice Lets an account subscribe to a Tier
     *
     * @param _param     SubscriotionAPIParam - the parameter that governs a subscription to be made.
-    *                                          See struct `SubscriptionAPIParam` for more details.
+    *                                          See struct `ISwylClub/SubscriptionAPIParam` for more details.
     */
     function subsribe(SubscribeParam memory _param) external payable override nonReentrant onlyExistingClub(_param.clubId){
         // check if _msgSender() has already subscribed
@@ -331,12 +347,14 @@ contract SwylClub is
         // validate `_param.tierId`
         require(_param.tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
 
-        /// @dev validate subscribing tx
+        // validate the passed in `_param.tierFee` against the fee of the Tier
+        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - _param.tierFee does not match the fee of the Tier");
+        
+        /// @dev validate fund for subscribing tx
         validateFund(_msgSender(), _param.currency, _param.tierFee);
 
         /// @dev payout the club fee
         payout(_msgSender(), _param.clubOwner, _param.currency, _param.tierFee);
-
 
         // get current subscriptionId
         Subscription[] storage subscriptions = totalSubscriptions[_param.clubId][_param.tierId];
@@ -349,7 +367,8 @@ contract SwylClub is
             tierId: _param.tierId,
             subscriber: _msgSender(),
             dateStart: block.timestamp,
-            nextPayment: block.timestamp + 2629743 // unix time for 30.44 days (1 month)
+            nextPayment: block.timestamp + TIER_PERIOD, // unix time for 30.44 days (1 month)
+            royaltyStars: 1
         });
 
         // push newSubscriptions to the global state
@@ -384,11 +403,11 @@ contract SwylClub is
         // double checks if the caller is the owner of the Subscription
         require(getSubscription(_clubId, _tierId, _subscriptionId).subscriber == _msgSender(), "!SUBSCRIBER - the caller is not the owner of the subscription");
 
-        // get target Tier array
-        Tier[] memory targetTiers = totalTiers[_clubId];
-
         // validate `_tierId`
-        require(_tierId < targetTiers.length, "!TIER_ID - invalid _param.tierId");
+        require(_tierId < totalTiers[_clubId].length, "!TIER_ID - invalid _param.tierId");
+
+        // validate of the passed in `_param.subscriptionId` points at a valid subscription
+        require(_subscriptionId < getSubscriptionsAt(_clubId, _tierId).length, "!SUBSCRIPTION - subscription not found with `_param.subscriptionId`");
 
         // get targetSubscriptions
         Subscription[] storage targetSubscriptions = totalSubscriptions[_clubId][_tierId];
@@ -410,6 +429,63 @@ contract SwylClub is
 
         // emit SubscriptionCancel event
         emit SubscriptionCancel(_subscriptionId, _tierId, _msgSender(), targetSubscriptions);
+    }
+
+
+    /**
+    * @dev Lets a subscriber pays the Tier fee
+    *
+    * @param _param     MonthlyTierFeeParam - the parameter that governs the monthly tier fee payment.
+    *                                         See struct `ISwylClub/MonthlyTierFeeParam` for more info
+    */
+    function payMonthlyTierFee(MonthlyTierFeeParam memory _param) external payable nonReentrant onlyExistingClub(_param.clubId) {
+        // check if _msgSender() has already subscribed
+        bool isSubscribed = checkIsSubsribed(_param.clubId, _msgSender());
+        require(isSubscribed, "!SUBSCRIBED");
+
+        // double checks if the caller is the owner of the Subscription
+        require(getSubscription(_param.clubId, _param.tierId, _param.subscriptionId).subscriber == _msgSender(), "!SUBSCRIBER - the caller is not the owner of the subscription.");
+
+        // check if the clubOwner matches the clubOwner of the tier
+        require(_param.clubOwner == getClubAt(_param.clubId).clubOwner, "!NOT_OWNER - club owner in parameter do not match club owner in club with clubId in parememter.");
+
+        // validate `_param.tierId`
+        require(_param.tierId < totalTiers[_param.clubId].length, "!TIER_ID - invalid _param.tierId.");
+
+        // validate the passed in `_param.tierFee` against the fee of the Tier
+        require(_param.tierFee == getTier(_param.clubId, _param.tierId).tierFee, "!TIER_FEE - _param.tierFee does not match the fee of the Tier.");
+
+        // validate of the passed in `_param.subscriptionId` points at a valid subscription
+        require(_param.subscriptionId < getSubscriptionsAt(_param.clubId, _param.tierId).length, "!SUBSCRIPTION - subscription not found with `_param.subscriptionId.`");
+
+        // get targetSubscription
+        Subscription storage targetSubscription = totalSubscriptions[_param.clubId][_param.tierId][_param.subscriptionId];
+
+        // validate the subscriber can only pay for the Tier Fee no earlier than 6 days unix time until due date
+        // require(block.timestamp >= targetSubscription.nextPayment - SIX_DAY_EARLY, "!DUE_DATE - Cannot pay more than 6 days earlier than the due date.");
+
+        // validate the subscriber can only pay for the Tier Fee no later than 3 days after due date
+        // require(block.timestamp <=targetSubscription.nextPayment + THREE_DAY_MERCI, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
+        require(block.timestamp <=targetSubscription.dateStart + 60, "!DUE_DATE - Missed the 3-day-merci period. Please subscribe again!");
+
+        /// @dev validate fund for MonthlyFee tx
+        validateFund(_msgSender(), _param.currency, _param.tierFee);
+
+        /// @dev payout the club fee
+        payout(_msgSender(), _param.clubOwner, _param.currency, _param.tierFee);
+
+        // calculate the next payment based on `isEarly`
+        uint256 newNextPayment = targetSubscription.nextPayment + TIER_PERIOD;
+        
+        // update targetSubscription next payment and royaltyStars
+        targetSubscription.nextPayment = newNextPayment;
+        targetSubscription.royaltyStars ++;
+
+        // update global `totalSubscriptions`
+        totalSubscriptions[_param.clubId][_param.tierId][_param.subscriptionId] = targetSubscription;
+
+        // emit NewSubscription event
+        emit MonthlyTierFee(_param.subscriptionId, _param.tierId, _msgSender(), targetSubscription);
     }
 
 
@@ -563,23 +639,29 @@ contract SwylClub is
 
 
     /// @dev Returns an array of Tier based on `_clubId`
-    function getTiersAt(uint256 _clubId) public view returns (Tier[] memory) {
+    function getTiersAt(uint256 _clubId) public view onlyExistingClub(_clubId) returns (Tier[] memory) {
         return totalTiers[_clubId];
     }
 
     /// @dev Returns a specific Tier based on `_clubId` & `_tierId`
-    function getTier(uint256 _clubId, uint256 _tierId) public view returns (Tier memory) {
+    function getTier(uint256 _clubId, uint256 _tierId) public view onlyExistingClub(_clubId) returns (Tier memory) {
         return totalTiers[_clubId][_tierId];
     }
 
     /// @dev Returns an array of Subscription based on `_clubId` & `_tierId`
-    function getSubscriptionsAt(uint256 _clubId, uint256 _tierId) public view returns (Subscription[] memory) {
+    function getSubscriptionsAt(uint256 _clubId, uint256 _tierId) public view onlyExistingClub(_clubId) returns (Subscription[] memory) {
         return totalSubscriptions[_clubId][_tierId];
     }
 
     /// @dev Returns a specific Subscription based on `_clubId`, `_tierId` & `_subscriptionId`
-    function getSubscription(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view returns (Subscription memory) {
+    function getSubscription(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view onlyExistingClub(_clubId) returns (Subscription memory) {
         return totalSubscriptions[_clubId][_tierId][_subscriptionId];
+    }
+
+
+    /// @dev Returns the duration one subscriber has been subscribing a Tier
+    function getRoyaltyDuration(uint256 _clubId, uint256 _tierId, uint256 _subscriptionId) public view onlyExistingClub(_clubId) returns (uint256) {
+        return block.timestamp - getSubscription(_clubId, _tierId, _subscriptionId).dateStart;
     }
 
 
