@@ -17,14 +17,15 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 - [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows any user to make a donation with an arbitrary amount of crypto currency to another user on the platform. All the transactions are transparently recorded on the blockchain.
 
-- [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - a combination of many safe, gas optimizing and well-tested features from the [@Thirdweb/Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a plethora of `Swyl's logic`, SwylMarketplace:
+- [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - a combination of many safe, gas optimizing and well-tested features from the [@Thirdweb/Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a plethora of `Swyl's complex marketplace logic`, SwylMarketplace is able to:
    - allows a token owner create/update/cancel an NFT listing for sale on the blockchain
    - on behalf of the token owner, safely allows buy and transfer NFT transaction to take place automatically without the presence of the seller. After a sale, automatically transfer the listing price from buy's to seller's crypto wallet address
-   - automatically calculate and transfer [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
+   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
-- [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored out of the five contracts, powers all the complex Swyl membership logic. SwylClub allows users to:
-   - create a `SwylClub` which then can be added with a number of SwylTier (i.e. membership plans). In each `SwylTier`, user can config their own desired amount of `Tier Fee`, arbitary amount of `Tier Limit` to limit the members in a Tier
-
+- [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
+   - allows a possible club owner to create a `SwylClub` which then can be added with a number of SwylTier (i.e. membership plans). In each `SwylTier`, user can config their own desired amount of `Tier Fee`, arbitary amount of `Tier Limit` to limit the members in a `SwylTier`, update the metadata at any time
+   - allows club owners to easily keep track of the total members and the total active members in each `SwylTier`, periodically make a request to `wipe off` inactive members, 
+   - allows a possible subscriber to subscribe/unsubscribe to any `SwylTier` in any `SwylClub` on the platform. `SwylClub` automatically calculates next payment in 30 days for the followers, records the very first date they started following the Club, increases the `SwylRoyaltyStars` (i.e. an Swyl honor system based on how long a follower follow a club)
 
 
 ## Building the project
