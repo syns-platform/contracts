@@ -7,90 +7,122 @@
 */
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.11;
 
 /** EXTERNAL IMPORT */
-import "@thirdweb-dev/contracts/base/ERC721Base.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+
 
 /**
- *  The `SwylERC721` smart contract implements the Thirdweb/ERC721Base NFT standard, along with the ERC721A optimization.
+ *  The `SwylERC721` smart contract implements the Openzeppelin/ERC721 NFT standard, along with the ERC721Royalty optimization.
  *  It includes all the standard logics from ERC721A & ERC721Base PLUS:
  *      - Emit event mintedTo() everytime mintTo() is called
  *      - Records the original creator of the NFT by adding the original creator's address to a mapping
  */
-contract SwylERC721 is ERC721Base, PermissionsEnumerable {
+contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         Variables
     //////////////////////////////////////////////////////////////*/
-    // Mapping(s)
-    mapping (uint256 => address) private tokenIdToOriginalCreator;
+    // States
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    // structs
+    struct RoyaltyInfoForAddress {
+        address originalAuthor;
+        uint96 royaltyBPS;
+    }
+
+    // Mapping(s) tokenID => originalCreator => royaltyBPS
+    mapping (uint256 => RoyaltyInfoForAddress) private royaltyInfoForToken;
 
     // Event(s)
     event mintedTo(address _to, string uri);
 
-
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _royaltyRecipient,
-        uint128 _royaltyBps
-    ) ERC721Base(
-        _name, 
-        _symbol, 
-        _royaltyRecipient, 
-        _royaltyBps
-        )
-    {
+    constructor() ERC721("Support Who You Love", "SWYL721") {
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-
     /*//////////////////////////////////////////////////////////////
                         SwylERC721v1 Logic
     //////////////////////////////////////////////////////////////*/
-    
-    /**
-     *  @notice          Lets an authorized address mint an NFT to a recipient. Override @thirdweb/ERC721Base.mintTo()
-     *  @dev             The logic in the `super._canMint()` function determines whether the caller is authorized to mint NFTs.
-     *                   After finished minting new token, _setupRoyaltyInfoForToken() is called to set the originalCreator as
-     *                   royalty recipient address
+
+     /**
+     *  @notice             Lets any addresses mint an NFT to themselves or to another recepient. Override @erc721a.mintTo()
+     *  @dev                After finished minting new token, _setupRoyaltyInfoForToken() is called to set the originalCreator as
+     *                      royalty recipient address
      *
-     *  @param _to       The recipient of the NFT to mint.
-     *  @param _tokenURI The full metadata URI for the NFT minted.
+     *  @param _tokenURI    The token uri
      */
-    function safeMintTo(address _to, string memory _tokenURI, uint256 _bps) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        // specify nextTokenIdToMint
-        uint256 nextTokenIdToMint = super.nextTokenIdToMint();
+     function safeMintTo(string memory _tokenURI, uint96 _royaltyBps) public returns (uint) {
+        // prepare nextTokenIdToMint
+        uint256 nextTokenIdToMint = _tokenIds.current();
 
-        // "super" refers to the base contract.
-        // the mintTo() in base contract using:
-        //  - ERC721's _safeMint() 
-        //  - ERC721Storage _setTokenURI() 
-        // only contract owner can mint
-        super.mintTo(_to, _tokenURI);
+        // mint a new token
+        _safeMint(msg.sender, nextTokenIdToMint);
+        _setTokenURI(nextTokenIdToMint, _tokenURI);
 
-        // update tokenIdToOriginalCreator mapping
-        tokenIdToOriginalCreator[nextTokenIdToMint] = _to;
+        // update RoyaltyInfoForToken mapping
+        RoyaltyInfoForAddress memory currentRoyaltyInfo = RoyaltyInfoForAddress({
+            originalAuthor: msg.sender,
+            royaltyBPS: _royaltyBps}
+        );
+        royaltyInfoForToken[nextTokenIdToMint] = currentRoyaltyInfo;
 
         // set roytalty recipient for token
-        _setupRoyaltyInfoForToken(nextTokenIdToMint, _to, _bps);
+        _setTokenRoyalty(nextTokenIdToMint, msg.sender, _royaltyBps);
 
-        // emit event everytime mintTo is called
-        emit mintedTo(_to, _tokenURI);
+        // increment tokenId
+        _tokenIds.increment();
+
+        return nextTokenIdToMint;
     }
 
+
+    // The following functions are overrides required by Solidity.
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+    
+    function _burn(uint256 tokenId) internal override(ERC721URIStorage, ERC721Royalty) {
+        super._burn(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Royalty, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
     /*//////////////////////////////////////////////////////////////
                         SwylERC721v1 Getters
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Returns originalCreator by tokenId
-    function getOriginalCreator(uint _tokenId) view public returns (address) {
-        return tokenIdToOriginalCreator[_tokenId];
+    function getRoyaltyInfoForToken(uint _tokenId) view public returns (RoyaltyInfoForAddress memory) {
+        return royaltyInfoForToken[_tokenId];
+    }
+
+    /// @dev Returns Royalty Token Information based on 
+    function getRoyaltyInfo(uint256 _tokenId, uint256 _salePrice) public view returns (address, uint256) {
+        
     }
 }
