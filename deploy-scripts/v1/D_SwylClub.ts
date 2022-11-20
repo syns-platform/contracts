@@ -14,12 +14,13 @@ import { exportArtifactsToClient } from '../../utils/exportArtifactsToClient';
  * @dev deploy SwylClub smart contract
  */
 const D_SwylClub = async () => {
+  console.log(`Start deploying SwylClub...`);
   // prepare SwylClub SC
   const SwylClub = await ethers.getContractFactory('SwylClub');
   // asyncly deploy SwylClub SC
   const swylClub = await SwylClub.deploy(NAVTIVE_TOKEN_WRAPPER);
   await swylClub.deployed();
-  console.log(`Messages deployed to the address: ${swylClub.address}`);
+  console.log(`SwylClub deployed to the address: ${swylClub.address}`);
 
   // export contract artifacts to client folder
   exportArtifactsToClient(swylClub, 'SwylClub');
