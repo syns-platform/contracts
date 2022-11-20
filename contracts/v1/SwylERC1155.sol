@@ -7,10 +7,10 @@
 */
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.11;
 
 /** EXTERNAL IMPORT */
-import "@thirdweb-dev/contracts/base/ERC1155Base.sol";
+import "../../libs/thirdweb/ERC1155base.sol";
 import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 
 /**
@@ -25,7 +25,7 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
                         Variables
     //////////////////////////////////////////////////////////////*/
     // Mapping(s)
-            mapping (uint256 => address) private tokenIdToOriginalCreator;
+    mapping (uint256 => address) private tokenIdToOriginalCreator;
 
     // Event(s)
     event newTokenMintedTo(address _to, uint256 _tokenId, string uri, uint256 amount);
@@ -35,19 +35,7 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-      constructor(
-        string memory _name,
-        string memory _symbol,
-        address _royaltyRecipient,
-        uint128 _royaltyBps
-    )
-        ERC1155Base(
-            _name,
-            _symbol,
-            _royaltyRecipient,
-            _royaltyBps
-        )
-    {
+    constructor() ERC1155Base("Support Who You Love", "SWYL1155"){
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -58,45 +46,48 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     //////////////////////////////////////////////////////////////*/
     
     /**
-     *  @notice          Lets an authorized address mint NFTs to a recipient.
-     *  @dev             - The logic in the `super._canMint()` function determines whether the caller is authorized to mint NFTs.
-     *                   - If `_tokenId == getNewTokenRequiredId()` 
+     *  @dev             - If `_tokenId == getNewTokenRequiredId()` 
      *                          + A new NFT is created at tokenId `nextTokenIdToMint` is minted.
-     *                          + Set the royalty recipient to the address _to
+     *                          + Set the royalty recipient to the address msg.sender
      *                          + Emits event newTokenMintedTo().
      *                   - If the given `tokenId < nextTokenIdToMint`, then additional supply of an existing NFT is being minted
      *                      on existed token at _tokenId, and the tokenURI is set to be the same. 
      *                      Emits event mintedOnExistedToken().
      *
-     *  @param _to       The recipient of the NFTs to mint.
+     *  @notice          Noted removed onlyRole(DEFAULT_ADMIN_ROLE) => the logic is to let every one mint NFTs not just Swyl Service Admin account
+     *
      *  @param _tokenId  The tokenId of the NFT to mint.
      *  @param _tokenURI The full metadata URI for the NFTs minted (if a new NFT is being minted).
      *  @param _amount   The amount of the same NFT to mint.
      */
     function safeMintTo(
-        address _to, 
         uint256 _tokenId, 
         string memory _tokenURI, 
         uint256 _amount,
-        uint256 _bps
-    ) public onlyRole(DEFAULT_ADMIN_ROLE){
+        uint256 _royaltyBps
+    ) public {
         // newTokenRequiredId is the ID that _tokenId must meet to create a new token. Otherwise, more supply are minted on existed tokens.
         uint newTokenRequiredId = getNewTokenRequiredId();
+
+        // if _tokenId != newTokenRequiredId => msg.sender is required to be the originalAuthor
+        if (_tokenId != newTokenRequiredId) {
+            require(msg.sender == tokenIdToOriginalCreator[_tokenId], "!AUTHOR - only original author can add more supply to this token");
+        }
 
         // nextTokenIdToMint is the new tokenId of the new token being created.
         uint nextTokenIdToMint = super.nextTokenIdToMint();
 
         // Calls mintTo() from ERC1155Base
-        super.mintTo(_to, _tokenId, _tokenURI, _amount);
+        super.mintTo(msg.sender, _tokenId, _tokenURI, _amount);
 
 
         // originalCreator logic
         if (_tokenId == newTokenRequiredId) { // new token is being created
-            tokenIdToOriginalCreator[nextTokenIdToMint] = _to;
-            _setupRoyaltyInfoForToken(nextTokenIdToMint, _to, _bps);
-            emit newTokenMintedTo(_to, nextTokenIdToMint, _tokenURI, _amount);
+            tokenIdToOriginalCreator[nextTokenIdToMint] = msg.sender;
+            _setupRoyaltyInfoForToken(nextTokenIdToMint, msg.sender, _royaltyBps);
+            emit newTokenMintedTo(msg.sender, nextTokenIdToMint, _tokenURI, _amount);
         } else { // more supplies are being minted on an existed token
-            emit mintedOnExistedToken(_to, nextTokenIdToMint, _tokenURI, _amount);
+            emit mintedOnExistedToken(msg.sender, nextTokenIdToMint, _tokenURI, _amount);
         }
     }
 
