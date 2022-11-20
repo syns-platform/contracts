@@ -28,6 +28,14 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  networks: {
+    hardhat: {},
+    mumbai: {
+      url: MUMBAI_RPC_URL,
+      accounts: [SWYL_SERVICE_PRIVATE_KEY as string],
+      chainId: 80001,
+    },
+  },
 };
 
 export default config;
