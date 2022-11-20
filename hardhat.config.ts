@@ -4,7 +4,6 @@
     @Instructor: Professor Bastian Tenbergen
     @Version: 1.0
 */
-import { HardhatUserConfig } from 'hardhat/types';
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-gas-reporter';
@@ -38,6 +37,12 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
+  },
+  gasReporter: {
+    enabled: false,
+    currency: 'USD',
+    coinmarketcap: COINMARKETCAP_API_KEY,
+    token: 'ETH',
   },
 };
 
