@@ -24,12 +24,7 @@ const D_SwylERC721 = async () => {
   // prepare SwylERC721 SC
   const SwylERC721 = await ethers.getContractFactory('SwylERC721');
   // asyncly deploy SwylERC721 SC
-  const swylERC721 = await SwylERC721.deploy(
-    SWYL_NFT_NAME,
-    SWYL_NFT_SYMBOL,
-    SWYL_NFT_SERVICE_RECIPIENT,
-    SWYL_NFT_DEFAULT_ROYALTY_BPS
-  );
+  const swylERC721 = await SwylERC721.deploy();
   await swylERC721.deployed();
   console.log(`SwylERC721 deployed to the address: ${swylERC721.address}`);
 

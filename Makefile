@@ -45,9 +45,9 @@ verify-club:
 verify-donation: 
 		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(DONATION_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
 verify-721: 
-		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(721_SC_ADDRESS) ${SWYL_NFT_NAME} ${SWYL_NFT_SYMBOL} ${SWYL_NFT_SERVICE_RECIPIENT} ${SWYL_NFT_DEFAULT_ROYALTY_BPS} --show-stack-traces
+		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(721_SC_ADDRESS) --show-stack-traces
 verify-1155: 
-		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(1155_SC_ADDRESS) ${SWYL_NFT_NAME} ${SWYL_NFT_SYMBOL} ${SWYL_NFT_SERVICE_RECIPIENT} ${SWYL_NFT_DEFAULT_ROYALTY_BPS} --show-stack-traces
+		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(1155_SC_ADDRESS) --show-stack-traces
 verify-marketplace: 
 		$(YARN_HARDHAT_BASE) verify --network $(DEFAULT_NETWORK) $(MARKETPLACE_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} ${SWYL_NFT_SERVICE_RECIPIENT} ${SWYL_NFT_DEFAULT_PLATOFRM_FREE_BPS} --show-stack-traces
 
