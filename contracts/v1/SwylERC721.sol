@@ -10,7 +10,6 @@
 pragma solidity ^0.8.11;
 
 /** EXTERNAL IMPORT */
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -27,23 +26,29 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
  */
 contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
-                        Variables
+                        State variables
     //////////////////////////////////////////////////////////////*/
-    // States
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    // structs
+    /*//////////////////////////////////////////////////////////////
+                        Structs
+    //////////////////////////////////////////////////////////////*/
     struct RoyaltyInfoForAddress {
         address originalAuthor;
         uint96 royaltyBPS;
     }
 
-    // Mapping(s) tokenID => originalCreator => royaltyBPS
+    /*//////////////////////////////////////////////////////////////
+                        Mappings
+    //////////////////////////////////////////////////////////////*/
+    // Mapping tokenID => originalCreator => royaltyBPS
     mapping (uint256 => RoyaltyInfoForAddress) private royaltyInfoForToken;
 
-    // Event(s)
-    event mintedTo(address _to, string uri);
+    /*//////////////////////////////////////////////////////////////
+                        Events
+    //////////////////////////////////////////////////////////////*/
+    event newTokenMintedTo(address _to, string uri);
 
     /*//////////////////////////////////////////////////////////////
                         Constructor
@@ -84,6 +89,9 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
 
         // increment tokenId
         _tokenIds.increment();
+
+        // emit event
+        emit newTokenMintedTo(msg.sender, _tokenURI);
 
         return nextTokenIdToMint;
     }
