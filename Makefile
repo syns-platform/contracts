@@ -14,7 +14,6 @@ SWYL_NFT_DEFAULT_ROYALTY_BPS=1000
 SWYL_NFT_DEFAULT_PLATOFRM_FREE_BPS=2000
 
 ## Clean dev environment
-
 .PHONY: clean
 clean: 
 		@echo Deep cleaning dev environment...
