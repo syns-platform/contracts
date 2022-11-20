@@ -1,5 +1,5 @@
 YARN_HARDHAT_BASE=yarn hardhat
-DEPLOY_SCRIPT_INDEX_PATH=scripts/deploy.ts
+DEPLOY_SCRIPT_PATH=./deploy-scripts/v1/
 DEFAULT_NETWORK=mumbai
 CLUB_SC_ADDRESS=
 DONATION_SC_ADDRESS=
@@ -29,9 +29,9 @@ compile:
 		${YARN_HARDHAT_BASE} compile
 
 ## DEPLOY SCs
-### index
-deploy-index: 
-		$(YARN_HARDHAT_BASE) run $(DEPLOY_SCRIPT_INDEX_PATH) --network $(DEFAULT_NETWORK)
+.PHONY: deploy
+deploy: 
+		$(YARN_HARDHAT_BASE) run $(DEPLOY_SCRIPT_PATH) --network $(DEFAULT_NETWORK)
 
 
 ## VERIFY SCs
