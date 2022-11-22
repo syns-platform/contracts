@@ -10,7 +10,7 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 ## Hightlighted features
 
-- [SwylERC721](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the NFT industry standards from [@open/zeppelin/ERC721](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721) PLUS `Swyl's ERC721 logic` to set default royalty fee right after a token is minted.
+- [SwylERC721](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the NFT industry standards from [@openzeppelin/ERC721](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721) PLUS `Swyl's ERC721 logic` to set default royalty fee right after a token is minted.
 
 * [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the NFT industry standards from [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) PLUS `Swyl's ERC1155 logic`.
 
