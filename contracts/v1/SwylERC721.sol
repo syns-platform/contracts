@@ -71,21 +71,21 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
      */
      function safeMintTo(string memory _tokenURI, uint96 _royaltyBps) public returns (uint) {
         // prepare nextTokenIdToMint
-        uint256 nextTokenIdToMint = _tokenIds.current();
+        uint256 nextIdToMint = _tokenIds.current();
 
         // mint a new token
-        _safeMint(msg.sender, nextTokenIdToMint);
-        _setTokenURI(nextTokenIdToMint, _tokenURI);
+        _safeMint(msg.sender, nextIdToMint);
+        _setTokenURI(nextIdToMint, _tokenURI);
 
         // update RoyaltyInfoForToken mapping
         RoyaltyInfoForAddress memory currentRoyaltyInfo = RoyaltyInfoForAddress({
             originalAuthor: msg.sender,
             royaltyBPS: _royaltyBps}
         );
-        royaltyInfoForToken[nextTokenIdToMint] = currentRoyaltyInfo;
+        royaltyInfoForToken[nextIdToMint] = currentRoyaltyInfo;
 
         // set roytalty recipient for token
-        _setTokenRoyalty(nextTokenIdToMint, msg.sender, _royaltyBps);
+        _setTokenRoyalty(nextIdToMint, msg.sender, _royaltyBps);
 
         // increment tokenId
         _tokenIds.increment();
@@ -93,7 +93,7 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
         // emit event
         emit newTokenMintedTo(msg.sender, _tokenURI);
 
-        return nextTokenIdToMint;
+        return nextIdToMint;
     }
 
 
@@ -129,8 +129,8 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
         return royaltyInfoForToken[_tokenId];
     }
 
-    /// @dev Returns Royalty Token Information based on 
-    function getRoyaltyInfo(uint256 _tokenId, uint256 _salePrice) public view returns (address, uint256) {
-        
+    /// @dev Returns the total amount of tokens created on this contract
+    function nextTokenIdToMint() view public returns (uint256) {
+        return _tokenIds.current() + 1;
     }
 }
