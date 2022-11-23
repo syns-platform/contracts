@@ -9,12 +9,6 @@
 import { ethers } from 'hardhat';
 
 import { exportArtifactsToClient } from '../../utils/exportArtifactsToClient';
-import {
-  SWYL_NFT_NAME,
-  SWYL_NFT_SYMBOL,
-  SWYL_NFT_SERVICE_RECIPIENT,
-  SWYL_NFT_DEFAULT_ROYALTY_BPS,
-} from '../../utils/constants';
 
 /**
  * @dev deploy swylERC721 smart contract
