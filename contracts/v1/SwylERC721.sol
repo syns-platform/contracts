@@ -48,7 +48,7 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         Events
     //////////////////////////////////////////////////////////////*/
-    event newTokenMintedTo(address _to, string uri);
+    event newTokenMintedTo(address to, uint256 indexed tokenId, string indexed uri, uint256 indexed royaltyBps);
 
     /*//////////////////////////////////////////////////////////////
                         Constructor
@@ -87,11 +87,12 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
         // set roytalty recipient for token
         _setTokenRoyalty(nextIdToMint, msg.sender, _royaltyBps);
 
+        // emit event
+        emit newTokenMintedTo(msg.sender, _tokenIds.current(), _tokenURI, _royaltyBps);
+
         // increment tokenId
         _tokenIds.increment();
 
-        // emit event
-        emit newTokenMintedTo(msg.sender, _tokenURI);
 
         return nextIdToMint;
     }
@@ -131,6 +132,6 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
 
     /// @dev Returns the total amount of tokens created on this contract
     function nextTokenIdToMint() view public returns (uint256) {
-        return _tokenIds.current() + 1;
+        return _tokenIds.current();
     }
 }

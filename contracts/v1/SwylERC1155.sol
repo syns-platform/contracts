@@ -28,8 +28,8 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     mapping (uint256 => address) private tokenIdToOriginalCreator;
 
     // Event(s)
-    event newTokenMintedTo(address _to, uint256 _tokenId, string uri, uint256 amount);
-    event mintedOnExistedToken(address _to, uint256 _tokenId, string uri, uint256 amount);
+    event newTokenMintedTo(address to, uint256 indexed tokenId, string indexed uri, uint256 amount, uint256 indexed royaltyBps);
+    event mintedOnExistedToken(address to, uint256 indexed tokenId, string indexed uri, uint256 amount, uint256 indexed royaltyBps);
 
 
     /*//////////////////////////////////////////////////////////////
@@ -85,9 +85,9 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
         if (_tokenId == newTokenRequiredId) { // new token is being created
             tokenIdToOriginalCreator[nextTokenIdToMint] = msg.sender;
             _setupRoyaltyInfoForToken(nextTokenIdToMint, msg.sender, _royaltyBps);
-            emit newTokenMintedTo(msg.sender, nextTokenIdToMint, _tokenURI, _amount);
+            emit newTokenMintedTo(msg.sender, nextTokenIdToMint, _tokenURI, _amount, _royaltyBps);
         } else { // more supplies are being minted on an existed token
-            emit mintedOnExistedToken(msg.sender, nextTokenIdToMint, _tokenURI, _amount);
+            emit mintedOnExistedToken(msg.sender, nextTokenIdToMint, _tokenURI, _amount, _royaltyBps);
         }
     }
 
