@@ -28,8 +28,8 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     mapping (uint256 => address) private tokenIdToOriginalCreator;
 
     // Event(s)
-    event newTokenMintedTo(address to, uint256 indexed tokenId, string indexed uri, uint256 amount, uint256 indexed royaltyBps);
-    event mintedOnExistedToken(address to, uint256 indexed tokenId, string indexed uri, uint256 amount, uint256 indexed royaltyBps);
+    event newTokenMintedTo(address indexed to, uint256 indexed tokenId, string uri, uint256 amount, uint256 indexed royaltyBps);
+    event mintedOnExistedToken(address indexed to, uint256 indexed tokenId, string uri, uint256 amount, uint256 indexed royaltyBps);
 
 
     /*//////////////////////////////////////////////////////////////

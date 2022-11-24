@@ -48,7 +48,7 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         Events
     //////////////////////////////////////////////////////////////*/
-    event newTokenMintedTo(address to, uint256 indexed tokenId, string indexed uri, uint256 indexed royaltyBps);
+    event newTokenMintedTo(address indexed to, uint256 indexed tokenId, string uri, uint256 indexed royaltyBps);
 
     /*//////////////////////////////////////////////////////////////
                         Constructor
