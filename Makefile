@@ -52,4 +52,4 @@ verify-marketplace:
 
 ### verify all
 .PHONY: verify
-verify: verify-721 verify-1155
+verify: verify-club verify-donation verify-marketplace verify-721 verify-1155
