@@ -45,6 +45,9 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     // Mapping tokenID => originalCreator => royaltyBPS
     mapping (uint256 => RoyaltyInfoForAddress) private royaltyInfoForToken;
 
+    // Mapping tokenID => timestamp
+    mapping (uint256 => uint256) private tokenIdToTimestamp;
+
     /*//////////////////////////////////////////////////////////////
                         Events
     //////////////////////////////////////////////////////////////*/
@@ -86,6 +89,9 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
 
         // set roytalty recipient for token
         _setTokenRoyalty(nextIdToMint, msg.sender, _royaltyBps);
+
+        // update tokenIdToTimestamp mapping
+        tokenIdToTimestamp[nextIdToMint] = block.timestamp;
 
         // emit event
         emit newTokenMintedTo(msg.sender, _tokenIds.current(), _tokenURI, _royaltyBps);
@@ -133,5 +139,10 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /// @dev Returns the total amount of tokens created on this contract
     function nextTokenIdToMint() view public returns (uint256) {
         return _tokenIds.current();
+    }
+
+    /// @dev Returns the block timestamp when the token is minted 
+    function getTokenTimestamp(uint256 _tokenId) view public returns (uint256) {
+        return tokenIdToTimestamp[_tokenId];
     }
 }
