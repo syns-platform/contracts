@@ -27,6 +27,9 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     // Mapping(s)
     mapping (uint256 => address) private tokenIdToOriginalCreator;
 
+    // Mapping tokenID => timestamp
+    mapping (uint256 => uint256) private tokenIdToTimestamp;
+
     // Event(s)
     event newTokenMintedTo(address indexed to, uint256 indexed tokenId, string uri, uint256 amount, uint256 indexed royaltyBps);
     event mintedOnExistedToken(address indexed to, uint256 indexed tokenId, string uri, uint256 amount, uint256 indexed royaltyBps);
@@ -85,6 +88,11 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
         if (_tokenId == newTokenRequiredId) { // new token is being created
             tokenIdToOriginalCreator[nextTokenIdToMint] = msg.sender;
             _setupRoyaltyInfoForToken(nextTokenIdToMint, msg.sender, _royaltyBps);
+            
+            // update tokenIdToTimestamp mapping
+            tokenIdToTimestamp[nextTokenIdToMint] = block.timestamp;
+
+            // emit newTokenMintedTo event
             emit newTokenMintedTo(msg.sender, nextTokenIdToMint, _tokenURI, _amount, _royaltyBps);
         } else { // more supplies are being minted on an existed token
             emit mintedOnExistedToken(msg.sender, nextTokenIdToMint, _tokenURI, _amount, _royaltyBps);
@@ -104,5 +112,10 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     /// @dev Returns originalCreator by tokenId
     function getOriginalCreator(uint _tokenId) view public returns (address) {
         return tokenIdToOriginalCreator[_tokenId];
+    }
+
+    /// @dev Returns the block timestamp when the token is minted 
+    function getTokenTimestamp(uint256 _tokenId) view public returns (uint256) {
+        return tokenIdToTimestamp[_tokenId];
     }
 }
