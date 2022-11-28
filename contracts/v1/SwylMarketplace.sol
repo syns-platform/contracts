@@ -599,8 +599,36 @@ contract SwylMarketplace is
                             Internal functions
     //////////////////////////////////////////////////////////////*/
 
+    /**
+    * @notice checks if a token with assetAddress & tokenId & tokenOwner has already been listed for sale
+    * 
+    * @dev loops through the array of listing owned by token owner to find out if the token with `_assetContract`, `_tokenId` is already listed
+    *
+    * @param _assetContract                     address - the address of the token being validated
+    *
+    * @param tokenOwner                         address - the owner address of the token 
+    *
+    * @param _tokenId                           uint256 - the token Id of the token being validated
+    *
+    * @return _isListed                         bool - true if the token already exists and vice versa
+    */
+    function checkTokenAlreadyListed(address _assetContract, address tokenOwner, uint256 _tokenId) public view returns (bool _isListed) {
+        Listing[] memory listingsOwnedByTokenOwner = getListingsOwnedBy(tokenOwner);
+
+        for (uint256 i = 0; i < listingsOwnedByTokenOwner.length; i++) {
+            // Finding target existing listing
+            if (listingsOwnedByTokenOwner[i].assetContract == _assetContract &&
+                listingsOwnedByTokenOwner[i].tokenId == _tokenId 
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
      /**
-    *  @dev loops through the array os listings owned by _msg.Sender() to find out if the token 
+    *  @dev loops through the array of listings owned by _msg.Sender() to find out if the token 
     *       with `_assetContract`, `_tokenId`, `_currencyToAccept`, and `_listingPrice` is already listed.
     *
     *  @param listings                          Listing[] - The array of listings owned by _msg.Sender()
