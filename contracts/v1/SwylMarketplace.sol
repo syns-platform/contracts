@@ -612,7 +612,7 @@ contract SwylMarketplace is
     *
     * @return _isListed                         bool - true if the token already exists and vice versa
     */
-    function checkTokenAlreadyListed(address _assetContract, address tokenOwner, uint256 _tokenId) public view returns (bool _isListed, uint256 listingId) {
+    function checkTokenListed(address _assetContract, address tokenOwner, uint256 _tokenId) public view returns (bool _isListed, uint256 listingId) {
         Listing[] memory listingsOwnedByTokenOwner = getListingsOwnedBy(tokenOwner);
 
         for (uint256 i = 0; i < listingsOwnedByTokenOwner.length; i++) {
