@@ -17,7 +17,7 @@ export const SWYL_NFT_SYMBOL = 'SWYL';
 
 /** @notice Default royalty recipient for Swyl NFT smart contract  */
 export const SWYL_NFT_SERVICE_RECIPIENT =
-  '0xfA0D311F4f3be671f414c2B3b998323eC25c5AFD';
+  '0xFBAaB608AE4e0ED1ec86bEF8Ba689f064bFFe560';
 
 /** @notice Default Royalty BPS for Swyl NFT smart contract  */
 export const SWYL_NFT_DEFAULT_ROYALTY_BPS = '1000';
