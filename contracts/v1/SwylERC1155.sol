@@ -104,6 +104,29 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
                         SwylERC1155v1 Getters
     //////////////////////////////////////////////////////////////*/
 
+     /// @dev Returns a slice of tokens that are owned by a wallet address
+     /// @notice Needs to find another approach in future version - well, or maybe not too bad
+     /// @notice Client app can call this api to get the list of ids => then call ERC.blanceof to find out how many copies the owner has per each tokenId
+    function getTokensOwnedBy(address owner) view public returns (int256[] memory) {
+
+        // prepare total amount of tokens
+        uint256 totalTokens = ERC1155Base.nextTokenIdToMint();
+
+        // // init tokens array
+        int256[] memory tokens = new int256[](totalTokens);
+
+        // loops through smart contracts if a token is owned by `owner` => push to `tokens` else uint256.max
+        for (uint256 i = 0; i < totalTokens; i++) {
+            if (ERC1155.balanceOf[owner][i] != 0) {
+                tokens[i] = int256(i);
+            } else {
+                tokens[i] = -1;
+            }
+        }
+
+        return tokens;
+    }
+
     /// @dev Returns the biggest uint256 value to set a bar for creating a new token
     function getNewTokenRequiredId() pure public returns (uint256) {
         return type(uint256).max;

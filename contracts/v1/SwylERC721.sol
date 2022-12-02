@@ -48,6 +48,8 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     // Mapping tokenID => timestamp
     mapping (uint256 => uint256) private tokenIdToTimestamp;
 
+    mapping(uint256 => uint256[]) private tokensOwnedBy;
+
     /*//////////////////////////////////////////////////////////////
                         Events
     //////////////////////////////////////////////////////////////*/
@@ -130,6 +132,27 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         SwylERC721v1 Getters
     //////////////////////////////////////////////////////////////*/
+
+    /// @dev Returns a slice of tokens that are owned by a wallet address
+    function getTokensOwnedBy(address owner) view public returns (int256[] memory) {
+
+        // prepare total amount of tokens
+        uint256 totalTokens = _tokenIds.current();
+
+        // // init tokens array
+        int256[] memory tokens = new int256[](totalTokens);
+
+        // loops through smart contracts if a token is owned by `owner` => push to `tokens` else uint256.max
+        for (uint256 i = 0; i < totalTokens; i++) {
+            if (ERC721.ownerOf(i) == owner) {
+                tokens[i] = int256(i);
+            } else {
+                tokens[i] = -1;
+            }
+        }
+
+        return tokens;
+    }
 
     /// @dev Returns originalCreator by tokenId
     function getRoyaltyInfoForToken(uint _tokenId) view public returns (RoyaltyInfoForAddress memory) {
