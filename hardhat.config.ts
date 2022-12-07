@@ -18,7 +18,7 @@ const POLYGON_SCAN_API_KEY = process.env.POLYGON_SCAN_API_KEY;
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL;
 const ETHER_SCAN_API_KEY = process.env.ETHER_SCAN_API_KEY;
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
-const SWYL_SERVICE_PRIVATE_KEY = process.env.SWYL_SERVICE_PRIVATE_KEY;
+const SWYL_DEPLOYER_PRIVATE_KEY = process.env.SWYL_DEPLOYER_PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
   defaultNetwork: 'goerli',
@@ -35,17 +35,17 @@ const config: HardhatUserConfig = {
     hardhat: {},
     mumbai: {
       url: MUMBAI_RPC_URL,
-      accounts: [SWYL_SERVICE_PRIVATE_KEY as string],
+      accounts: [SWYL_DEPLOYER_PRIVATE_KEY as string],
       chainId: 80001,
     },
     goerli: {
       url: GOERLI_RPC_URL,
-      accounts: [SWYL_SERVICE_PRIVATE_KEY as string],
+      accounts: [SWYL_DEPLOYER_PRIVATE_KEY as string],
       chainId: 5,
     },
   },
   etherscan: {
-    apiKey: ETHER_SCAN_API_KEY as string,
+    apiKey: POLYGON_SCAN_API_KEY as string,
   },
   gasReporter: {
     enabled: false,
