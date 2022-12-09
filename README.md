@@ -1,6 +1,6 @@
 <p align="center">
 <br />
-<a href="https://thirdweb.com"><img src="https://github.com/SWYLy/materials/blob/master/logo.svg?raw=true" width="150" alt=""/></a>
+<a href="https://github.com/SWYLy/contracts"><img src="https://github.com/SWYLy/materials/blob/master/logo.svg?raw=true" width="150" alt=""/></a>
 <h1 align="center">SWYL - Support Who You Love - v1.0 </h1>
 <h4 align="center"></h4>
 </p>
