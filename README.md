@@ -7,7 +7,7 @@
 
 ## Overview
 
-Collection of smart contracts written in [Solidity](https://soliditylang.org/) that powers \***\*`Swyl's blockchain logic`\*\*** on the [Polygon blockchain](https://polygon.technology/matic-token/).
+Collection of smart contracts written in [Solidity](https://soliditylang.org/) that powers \***\*`Swyl's blockchain logic`\*\*** on the [Polygon network](https://polygon.technology/matic-token/).
 
 ## Hightlighted features
 
