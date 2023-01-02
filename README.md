@@ -15,7 +15,7 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 * [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SWYL.
 
-* [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows any user to make a donation with an arbitrary amount of crypto currency to another user on the platform. All the transactions are transparently recorded on the blockchain.
+* [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
 * [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - a combination of many safe, gas optimizing and well-tested features from the [@Thirdweb/Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a plethora of `Swyl's complex marketplace logic`, SwylMarketplace is able to:
 
