@@ -17,10 +17,12 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 * [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
-* [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - a combination of many safe, gas optimizing and well-tested features from the [@Thirdweb/Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a plethora of `Swyl's complex marketplace logic`, SwylMarketplace is able to:
+* [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SWYL. `SwylMarketplace` is able to:
 
-  - allows a token owner create/update/cancel an NFT listing for sale on the blockchain
-  - on behalf of the token owner, safely allows buy and transfer NFT transaction to take place automatically without the presence of the seller. After a sale, automatically transfer the listing price from buy's to seller's crypto wallet address
+  - Enable token owners to create, update, and cancel NFT listings for sale on the blockchain
+
+  - Safely facilitate the buying and transfer of NFTs on behalf of the seller, automatically transferring the sale price from the buyer's to the seller's crypto wallet address
+
   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
 * [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
