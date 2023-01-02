@@ -11,9 +11,9 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 ## Hightlighted features
 
-- [SwylERC721](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the NFT industry standards from [@openzeppelin/ERC721](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721) PLUS `Swyl's ERC721 logic` to set default royalty fee right after a token is minted.
+- [SwylERC721](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the standard features of an NFT industry, as defined by the `ERC721 specification` from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721), as well as additional custom logic developed by SWYL to automatically set the default royalty fee for new NFTs as soon as they are minted.
 
-* [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the NFT industry standards from [ERC1155](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/) PLUS `Swyl's ERC1155 logic`.
+* [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SWYL.
 
 * [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows any user to make a donation with an arbitrary amount of crypto currency to another user on the platform. All the transactions are transparently recorded on the blockchain.
 
