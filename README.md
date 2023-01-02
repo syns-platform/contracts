@@ -25,10 +25,13 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
-* [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
-  - allows a potential club owner to create a `SwylClub` which then can be added with a number of SwylTier (i.e. membership plans). In each `SwylTier`, user can config their own desired amount of `Tier Fee`, arbitary amount of `Tier Limit` to limit the members in a `SwylTier`, update the metadata at any time
-  - allows club owners to easily keep track of the total members and the total active members in each `SwylTier`, periodically make a request to `wipe off` inactive members,
-  - allows a potential subscriber to subscribe/unsubscribe to any `SwylTier` in any `SwylClub` on the platform. `SwylClub` automatically calculates next payment in 30 days for the followers, records the very first date they started following the Club, increases the `SwylRoyaltyStars` (i.e. an Swyl honor system based on how long a follower follow a club)
+* [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored and complex out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
+
+  - Allow potential club owners to create a `SWYL Club` and add multiple membership plans, known as `SWYL Tiers`, where the owner can configure their desired membership fee and limit the number of members in each tier, as well as update the metadata at any time.
+
+  - Enable club owners to easily track the total and active members in each `SWYL Tier` and periodically request to remove inactive members.
+
+  - Allow potential subscribers to subscribe or unsubscribe to any `SWYL Tier` in any `SWYL Club` on the platform. The `SWYL Club` automatically calculates the next payment in 30 days for followers, records the date they started following the club, and increases the SWYL Royalty Stars (an honor system based on how long a follower has been following the club).
 
 # Get Started
 
