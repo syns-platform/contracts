@@ -1,7 +1,7 @@
 <p align="center">
 <br />
 <a href="https://github.com/SWYLy/contracts"><img src="https://github.com/SWYLy/materials/blob/master/logo.svg?raw=true" width="150" alt=""/></a>
-<h1 align="center">SWYL - Support Who You Love - v1.0 </h1>
+<h1 align="center">SWYL - Support Who You Love - v2.0 </h1>
 <h4 align="center"></h4>
 </p>
 
@@ -15,18 +15,23 @@ Collection of smart contracts written in [Solidity](https://soliditylang.org/) t
 
 * [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SWYL.
 
-* [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows any user to make a donation with an arbitrary amount of crypto currency to another user on the platform. All the transactions are transparently recorded on the blockchain.
+* [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
-* [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - a combination of many safe, gas optimizing and well-tested features from the [@Thirdweb/Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a plethora of `Swyl's complex marketplace logic`, SwylMarketplace is able to:
+* [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SWYL. `SwylMarketplace` is able to:
 
-  - allows a token owner create/update/cancel an NFT listing for sale on the blockchain
-  - on behalf of the token owner, safely allows buy and transfer NFT transaction to take place automatically without the presence of the seller. After a sale, automatically transfer the listing price from buy's to seller's crypto wallet address
+  - Enable token owners to create, update, and cancel NFT listings for sale on the blockchain
+
+  - Safely facilitate the buying and transfer of NFTs on behalf of the seller, automatically transferring the sale price from the buyer's to the seller's crypto wallet address
+
   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
-* [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
-  - allows a potential club owner to create a `SwylClub` which then can be added with a number of SwylTier (i.e. membership plans). In each `SwylTier`, user can config their own desired amount of `Tier Fee`, arbitary amount of `Tier Limit` to limit the members in a `SwylTier`, update the metadata at any time
-  - allows club owners to easily keep track of the total members and the total active members in each `SwylTier`, periodically make a request to `wipe off` inactive members,
-  - allows a potential subscriber to subscribe/unsubscribe to any `SwylTier` in any `SwylClub` on the platform. `SwylClub` automatically calculates next payment in 30 days for the followers, records the very first date they started following the Club, increases the `SwylRoyaltyStars` (i.e. an Swyl honor system based on how long a follower follow a club)
+* [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored and complex out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
+
+  - Allow potential club owners to create a `SWYL Club` and add multiple membership plans, known as `SWYL Tiers`, where the owner can configure their desired membership fee and limit the number of members in each tier, as well as update the metadata at any time.
+
+  - Enable club owners to easily track the total and active members in each `SWYL Tier` and periodically request to remove inactive members.
+
+  - Allow potential subscribers to subscribe or unsubscribe to any `SWYL Tier` in any `SWYL Club` on the platform. The `SWYL Club` automatically calculates the next payment in 30 days for followers, records the date they started following the club, and increases the SWYL Royalty Stars (an honor system based on how long a follower has been following the club).
 
 # Get Started
 
