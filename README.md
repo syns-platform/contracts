@@ -5,6 +5,8 @@
 <h4 align="center"></h4>
 </p>
 
+<h5 align="center"> 🏵️ The platform is currently open for beta testing at https://swyl.vercel.app </h5>
+
 ## Overview
 
 **_SWYL/contracts_**, a suite of smart contracts, written in [Solidity](https://soliditylang.org/), that are deployed on the [Polygon network](https://polygon.technology/matic-token/). This collection of smart contracts serves as the backbone for the platform's decentralized functionality and enables secure, transparent, and immutable transactions.
