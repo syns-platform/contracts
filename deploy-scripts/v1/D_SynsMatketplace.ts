@@ -15,25 +15,25 @@ import {
 import { exportArtifactsToClient } from '../../utils/exportArtifactsToClient';
 
 /**
- * @dev deploy SwylClub smart contract
+ * @dev deploy SynsClub smart contract
  */
-const D_SwylMatketplace = async () => {
-  console.log(`Start deploying SwylMarketplace...`);
-  // prepare SwylMarketplace SC
-  const SwylMarketplace = await ethers.getContractFactory('SwylMarketplace');
-  // asyncly deploy SwylMarketplace SC
-  const swylMarketplace = await SwylMarketplace.deploy(
+const D_SynsMatketplace = async () => {
+  console.log(`Start deploying SynsMarketplace...`);
+  // prepare SynsMarketplace SC
+  const SynsMarketplace = await ethers.getContractFactory('SynsMarketplace');
+  // asyncly deploy SynsMarketplace SC
+  const synslMarketplace = await SynsMarketplace.deploy(
     NAVTIVE_TOKEN_WRAPPER,
     SWYL_NFT_SERVICE_RECIPIENT,
     SWYL_NFT_DEFAULT_PLATOFRM_FREE_BPS
   );
-  await swylMarketplace.deployed();
+  await synslMarketplace.deployed();
   console.log(
-    `SwylMarketplace deployed to the address: ${swylMarketplace.address}`
+    `SynsMarketplace deployed to the address: ${synslMarketplace.address}`
   );
 
   // export contract artifacts to client folder
-  exportArtifactsToClient(swylMarketplace, 'SwylMarketplace');
+  exportArtifactsToClient(synslMarketplace, 'SynsMarketplace');
 };
 
-export default D_SwylMatketplace;
+export default D_SynsMatketplace;
