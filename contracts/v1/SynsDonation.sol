@@ -18,11 +18,11 @@ import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgrad
 import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
 
 //  ==========  Internal imports    ==========
-import { ISwylDonation } from "../../interfaces/v1/ISwylDonation.sol";
+import { ISynsDonation } from "../../interfaces/v1/ISynsDonation.sol";
 
-contract SwylDonation is 
+contract SynsDonation is 
     Initializable,
-    ISwylDonation, 
+    ISynsDonation, 
     ERC2771ContextUpgradeable,
     ReentrancyGuardUpgradeable,
     AccessControlEnumerableUpgradeable
@@ -32,7 +32,7 @@ contract SwylDonation is
     //////////////////////////////////////////////////////////////*/
 
     /// @notice module level info
-    bytes32 private constant MODULE_TYPE = bytes32("Swyl-Donation");
+    bytes32 private constant MODULE_TYPE = bytes32("Syns-Donation");
     uint256 private constant VERSION = 1;
 
     /// @dev Contract level metadata.
@@ -98,7 +98,7 @@ contract SwylDonation is
 
 
          // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account
         _setupRole(DONATOR_ROLE, address(0));
     }
 
@@ -113,7 +113,7 @@ contract SwylDonation is
     *           - Recipient - a contract that can securely accept meta-transactions through a Trusted Forwarder by being compliant with this standard.
     */
     function initialize(
-        address _defaultAdmin, // original deployer i.e. Swyl Service account
+        address _defaultAdmin, // original deployer i.e. Syns Service account
         string memory _contrtactURI, // contract level URI
         address[] memory _trustedForwarders
     ) external initializer {
@@ -125,7 +125,7 @@ contract SwylDonation is
         contractURI = _contrtactURI;
 
         // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account in this case
+        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account in this case
         _setupRole(DONATOR_ROLE, address(0)); // grant LISTER_ROLE to address 0x000
     }
 
@@ -253,7 +253,7 @@ contract SwylDonation is
     *  @param _currencyAmountToCheckAgainst         uint256 - the total currency amount to check
     *
     *  NOTE Openzepplin/IERC20Upgradeable - allowance api returns the remaining number of tokens 
-    *                                       that spender (i.e. SwylDonation address) will be allowed to spend 
+    *                                       that spender (i.e. SynsDonation address) will be allowed to spend 
     *                                       on behalf of owner (i.e. _buyer) through transferFrom. This is zero by default.
     */
     function validateERC20BalAndAllowance(
