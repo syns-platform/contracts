@@ -1,7 +1,7 @@
 <p align="center">
 <br />
-<a href="https://github.com/SWYLy/contracts"><img src="https://github.com/SWYLy/materials/blob/master/logo.svg?raw=true" width="150" alt=""/></a>
-<h1 align="center">SWYL - Support Who You Love - v2.0 </h1>
+<a href="https://github.com/syns-platform/contracts"><img src="https://github.com/syns-platform/materials/blob/master/logo.svg?raw=true" width="150" alt=""/></a>
+<h1 align="center">SYNS - Spark Your Noble Story - v2.0 </h1>
 <h4 align="center"></h4>
 </p>
 
@@ -9,17 +9,17 @@
 
 ## Overview
 
-**_SWYL/contracts_**, a suite of smart contracts, written in [Solidity](https://soliditylang.org/), that are deployed on the [Polygon network](https://polygon.technology/matic-token/). This collection of smart contracts serves as the backbone for the platform's decentralized functionality and enables secure, transparent, and immutable transactions.
+**_SYNS/contracts_**, a suite of smart contracts, written in [Solidity](https://soliditylang.org/), that are deployed on the [Polygon network](https://polygon.technology/matic-token/). This collection of smart contracts serves as the backbone for the platform's decentralized functionality and enables secure, transparent, and immutable transactions.
 
 ## Hightlighted features
 
-- [SwylERC721](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the standard features of an NFT industry, as defined by the `ERC721 specification` from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721), as well as additional custom logic developed by SWYL to automatically set the default royalty fee for new NFTs as soon as they are minted.
+- [SynsERC721](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the standard features of an NFT industry, as defined by the `ERC721 specification` from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721), as well as additional custom logic developed by SYNS to automatically set the default royalty fee for new NFTs as soon as they are minted.
 
-* [SwylERC1155](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SWYL.
+* [SynsERC1155](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SYNS.
 
-* [SwylDonation](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
+* [SynsDonation](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
-* [SwylMarketPlace](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SWYL. `SwylMarketplace` is able to:
+* [SynsMarketPlace](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SYNS. `SwylMarketplace` is able to:
 
   - Enable token owners to create, update, and cancel NFT listings for sale on the blockchain
 
@@ -27,13 +27,13 @@
 
   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
-* [SwylClub](https://github.com/SWYLy/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored and complex out of the five contracts, powers all the complex Swyl membership logic. SwylClub is able to:
+* [SynsClub](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored and complex out of the five contracts, powers all the complex Syns membership logic. SynsClub is able to:
 
-  - Allow potential club owners to create a `SWYL Club` and add multiple membership plans, known as `SWYL Tiers`, where the owner can configure their desired membership fee and limit the number of members in each tier, as well as update the metadata at any time.
+  - Allow potential club owners to create a `SYNS Club` and add multiple membership plans, known as `SYNS Tiers`, where the owner can configure their desired membership fee and limit the number of members in each tier, as well as update the metadata at any time.
 
-  - Enable club owners to easily track the total and active members in each `SWYL Tier` and periodically request to remove inactive members.
+  - Enable club owners to easily track the total and active members in each `SYNS Tier` and periodically request to remove inactive members.
 
-  - Allow potential subscribers to subscribe or unsubscribe to any `SWYL Tier` in any `SWYL Club` on the platform. The `SWYL Club` automatically calculates the next payment in 30 days for followers, records the date they started following the club, and increases the SWYL Royalty Stars (an honor system based on how long a follower has been following the club).
+  - Allow potential subscribers to subscribe or unsubscribe to any `SYNS Tier` in any `SYNS Club` on the platform. The `SYNS Club` automatically calculates the next payment in 30 days for followers, records the date they started following the club, and increases the SYNS Royalty Stars (an honor system based on how long a follower has been following the club).
 
 # Get Started
 
@@ -47,7 +47,7 @@
 ## Quickstart
 
 ```
-git clone https://github.com/SWYLy/contracts.git
+git clone https://github.com/syns-platform/contracts.git
 cd contracts
 yarn
 ```
@@ -58,9 +58,9 @@ yarn
 
 - create a `.env` file using the `.example.env` as the template and fill out the variables.
 
-  - `SWYL_SERVICE_PRIVATE_KEY:` The private key of your [metamask](https://metamask.io/) account. See [Helpers.PRIVATE-KEY](https://github.com/swyly/contracts#1-how-to-export-private_key-from-your-metamask) on how to export your `PRIVATE KEY`. NOTE: FOR DEVELOPMENT, PLEASE USE A KEY THAT DOESN'T HAVE ANY REAL FUNDS ASSOCIATED WITH IT AND DO NOT SHARE YOUR PRIVATE KEY.
-  - `MUMBAI_RPC_URL`: This is url of the `Mumbai` testnet node you're working with then deploy the `smart contracts` to. Setup with one for free from [Alchemy](https://www.alchemy.com/). See [Helpers.MUMBAI-RPC-URL](https://github.com/swyly/contracts#2-how-to-export-a-mumbai_rpc_url-from-alchemy) on how to export a `MUMBAI_RPC_URL` from [Alchemy](https://www.alchemy.com/).
-  - `COINMARKETCAP_API_KEY`: This is mainly for the `hardhat-gas-report` pluggin so this is optional. If you want to play with `hardhat-gas-report` pluggin, first go to `hardhat.config.ts`, toggle the `gasReporter.enabled` to true. Then see [Helpers.COINMARKETCAP_API_KEY](https://github.com/swyly/contracts#3-how-to-export-a-coinmarketcap_api_key-from-coinmarketcap) on how to export your `COINMARKETCAP_API_KEY`
+  - `SYNS_SERVICE_PRIVATE_KEY:` The private key of your [metamask](https://metamask.io/) account. See [Helpers.PRIVATE-KEY](https://github.com/syns-platform/contracts#1-how-to-export-private_key-from-your-metamask) on how to export your `PRIVATE KEY`. NOTE: FOR DEVELOPMENT, PLEASE USE A KEY THAT DOESN'T HAVE ANY REAL FUNDS ASSOCIATED WITH IT AND DO NOT SHARE YOUR PRIVATE KEY.
+  - `MUMBAI_RPC_URL`: This is url of the `Mumbai` testnet node you're working with then deploy the `smart contracts` to. Setup with one for free from [Alchemy](https://www.alchemy.com/). See [Helpers.MUMBAI-RPC-URL](https://github.com/syns-platform/contracts#2-how-to-export-a-mumbai_rpc_url-from-alchemy) on how to export a `MUMBAI_RPC_URL` from [Alchemy](https://www.alchemy.com/).
+  - `COINMARKETCAP_API_KEY`: This is mainly for the `hardhat-gas-report` pluggin so this is optional. If you want to play with `hardhat-gas-report` pluggin, first go to `hardhat.config.ts`, toggle the `gasReporter.enabled` to true. Then see [Helpers.COINMARKETCAP_API_KEY](https://github.com/syns-platform/contracts#3-how-to-export-a-coinmarketcap_api_key-from-coinmarketcap) on how to export your `COINMARKETCAP_API_KEY`
 
   #### 2. Get testnet `MUMBAI MATIC`
 
@@ -110,31 +110,31 @@ make verify
 5.2.a. verify SwylClub Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SWYLCLUB_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
+yarn hardhat verify --network mumbai ${SYNSCLUB_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
 ```
 
 5.2.b. verify SwylDonation Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SWYLDONATION_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
+yarn hardhat verify --network mumbai ${SYNSDONATION_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SWYLERC721_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
+yarn hardhat verify --network mumbai ${SYNSERC721_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SWYLERC1155_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
+yarn hardhat verify --network mumbai ${SYNSERC1155_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SWYLMARKETPLACE_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS} ${PLATFORM_FEE_SERVICE_RECIPIENT} ${PLATFORM_FEE_BPS(%)}
+yarn hardhat verify --network mumbai ${SYNSMARKETPLACE_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS} ${PLATFORM_FEE_SERVICE_RECIPIENT} ${PLATFORM_FEE_BPS(%)}
 ```
 
 # Helpers
