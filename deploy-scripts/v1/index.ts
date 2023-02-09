@@ -1,15 +1,15 @@
-import D_SwylClub from './D_SwylClub';
-import D_SwylDonation from './D_SwylDonation';
-import D_SwylERC721 from './D_SwylERC721';
-import D_SwylERC1155 from './D_SwylERC1155';
-import D_SwylMatketplace from './D_SwylMatketplace';
+import D_SynsClub from './D_SynsClub';
+import D_SynsDonation from './D_SynsDonation';
+import D_SynsERC721 from './D_SynsERC721';
+import D_SynsERC1155 from './D_SynsERC1155';
+import D_SynsMatketplace from './D_SynsMatketplace';
 
 const main = async () => {
-  await D_SwylClub();
-  await D_SwylDonation();
-  await D_SwylERC721();
-  await D_SwylERC1155();
-  await D_SwylMatketplace();
+  await D_SynsClub();
+  await D_SynsDonation();
+  await D_SynsERC721();
+  await D_SynsERC1155();
+  await D_SynsMatketplace();
 };
 
 main().catch((e: any) => {

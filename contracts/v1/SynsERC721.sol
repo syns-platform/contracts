@@ -19,12 +19,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 
 /**
- *  The `SwylERC721` smart contract implements the Openzeppelin/ERC721 NFT standard, along with the ERC721Royalty optimization.
+ *  The `SynsERC721` smart contract implements the Openzeppelin/ERC721 NFT standard, along with the ERC721Royalty optimization.
  *  It includes all the standard logics from ERC721A & ERC721Base PLUS:
  *      - Emit event mintedTo() everytime mintTo() is called
  *      - Records the original creator of the NFT by adding the original creator's address to a mapping
  */
-contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
+contract SynsERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         State variables
     //////////////////////////////////////////////////////////////*/
@@ -58,13 +58,13 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC721("Support Who You Love", "SWYL721") {
+    constructor() ERC721("Spark Your Noble Story", "SYNS721") {
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     /*//////////////////////////////////////////////////////////////
-                        SwylERC721v1 Logic
+                        SynsERC721v1 Logic
     //////////////////////////////////////////////////////////////*/
 
      /**
@@ -73,6 +73,8 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
      *                      royalty recipient address
      *
      *  @param _tokenURI    The token uri
+     *
+     *  @param _royaltyBps  The bps for royalty
      */
      function safeMintTo(string memory _tokenURI, uint96 _royaltyBps) public returns (uint) {
         // prepare nextTokenIdToMint
@@ -130,7 +132,7 @@ contract SwylERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     }
 
     /*//////////////////////////////////////////////////////////////
-                        SwylERC721v1 Getters
+                        SynsERC721v1 Getters
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Returns a slice of tokens that are owned by a wallet address

@@ -14,13 +14,13 @@ import "../../libs/thirdweb/ERC1155base.sol";
 import "@thirdweb-dev/contracts/extension/PermissionsEnumerable.sol";
 
 /**
- *  The `SwylERC1155` smart contract implements the Thirdweb/ERC1155Base NFT standard.
+ *  The `SynsERC1155` smart contract implements the Thirdweb/ERC1155Base NFT standard.
  *  It includes all the standard logic from ERC1155 PLUS:
  *      - Emit event newTokenMintedTo (if a new token is minted) everytime mintTo() is called
  *      - Emit event mintedOnExistedToken (if more supply is added to an existed token) everytime mintTo() is called
  *      - Records the original creator of the NFT when a new token is created by adding the original creator's address to a mapping
  */
-contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
+contract SynsERC1155 is ERC1155Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Variables
     //////////////////////////////////////////////////////////////*/
@@ -38,26 +38,26 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC1155Base("Support Who You Love", "SWYL1155"){
+    constructor() ERC1155Base("Spark Your Noble Story", "SYNS1155"){
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
 
     /*//////////////////////////////////////////////////////////////
-                        SwylERC1155v1 Logic
+                        SynsERC1155v1 Logic
     //////////////////////////////////////////////////////////////*/
     
     /**
      *  @dev             - If `_tokenId == getNewTokenRequiredId()` 
-     *                          + A new NFT is created at tokenId `nextTokenIdToMint` is minted.
+     *                          + A new NFT at tokenId `nextTokenIdToMint` is minted.
      *                          + Set the royalty recipient to the address msg.sender
      *                          + Emits event newTokenMintedTo().
      *                   - If the given `tokenId < nextTokenIdToMint`, then additional supply of an existing NFT is being minted
      *                      on existed token at _tokenId, and the tokenURI is set to be the same. 
      *                      Emits event mintedOnExistedToken().
      *
-     *  @notice          Noted removed onlyRole(DEFAULT_ADMIN_ROLE) => the logic is to let every one mint NFTs not just Swyl Service Admin account
+     *  @notice          Noted removed onlyRole(DEFAULT_ADMIN_ROLE) => the logic is to let every one mint NFTs not just Syns Service Admin account
      *
      *  @param _tokenId  The tokenId of the NFT to mint.
      *  @param _tokenURI The full metadata URI for the NFTs minted (if a new NFT is being minted).
@@ -101,7 +101,7 @@ contract SwylERC1155 is ERC1155Base, PermissionsEnumerable {
 
 
     /*//////////////////////////////////////////////////////////////
-                        SwylERC1155v1 Getters
+                        SynsERC1155v1 Getters
     //////////////////////////////////////////////////////////////*/
 
      /// @dev Returns a slice of tokens that are owned by a wallet address

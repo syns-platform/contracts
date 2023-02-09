@@ -13,13 +13,13 @@
 
 ## Hightlighted features
 
-- [SynsERC721](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylERC721.sol) - includes all the standard features of an NFT industry, as defined by the `ERC721 specification` from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721), as well as additional custom logic developed by SYNS to automatically set the default royalty fee for new NFTs as soon as they are minted.
+- [SynsERC721](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SynsERC721.sol) - includes all the standard features of an NFT industry, as defined by the `ERC721 specification` from [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/api/token/erc721), as well as additional custom logic developed by SYNS to automatically set the default royalty fee for new NFTs as soon as they are minted.
 
-* [SynsERC1155](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SYNS.
+* [SynsERC1155](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SynsERC1155.sol) - includes all the standard features of the NFT industry as defined by the [ERC1155 specification](https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/), as well as additional custom logic developed by SYNS.
 
-* [SynsDonation](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
+* [SynsDonation](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SynsDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
-* [SynsMarketPlace](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SYNS. `SynsMarketplace` is able to:
+* [SynsMarketPlace](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SynsMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SYNS. `SynsMarketplace` is able to:
 
   - Enable token owners to create, update, and cancel NFT listings for sale on the blockchain
 
@@ -27,7 +27,7 @@
 
   - automatically calculates and transfers [royties](https://www.nftgators.com/nft-royalties-explained/) to original creator
 
-* [SynsClub](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylClub.sol) - most honored and complex out of the five contracts, powers all the complex Syns membership logic. SynsClub is able to:
+* [SynsClub](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SynsClub.sol) - most honored and complex out of the five contracts, powers all the complex Syns membership logic. SynsClub is able to:
 
   - Allow potential club owners to create a `SYNS Club` and add multiple membership plans, known as `SYNS Tiers`, where the owner can configure their desired membership fee and limit the number of members in each tier, as well as update the metadata at any time.
 
@@ -60,7 +60,7 @@ yarn
 
   - `SYNS_SERVICE_PRIVATE_KEY:` The private key of your [metamask](https://metamask.io/) account. See [Helpers.PRIVATE-KEY](https://github.com/syns-platform/contracts#1-how-to-export-private_key-from-your-metamask) on how to export your `PRIVATE KEY`. NOTE: FOR DEVELOPMENT, PLEASE USE A KEY THAT DOESN'T HAVE ANY REAL FUNDS ASSOCIATED WITH IT AND DO NOT SHARE YOUR PRIVATE KEY.
   - `MUMBAI_RPC_URL`: This is url of the `Mumbai` testnet node you're working with then deploy the `smart contracts` to. Setup with one for free from [Alchemy](https://www.alchemy.com/). See [Helpers.MUMBAI-RPC-URL](https://github.com/syns-platform/contracts#2-how-to-export-a-mumbai_rpc_url-from-alchemy) on how to export a `MUMBAI_RPC_URL` from [Alchemy](https://www.alchemy.com/).
-  - `COINMARKETCAP_API_KEY`: This is mainly for the `hardhat-gas-report` pluggin so this is optional. If you want to play with `hardhat-gas-report` pluggin, first go to `hardhat.config.ts`, toggle the `gasReporter.enabled` to true. Then see [Helpers.COINMARKETCAP_API_KEY](https://github.com/syns-platform/contracts#3-how-to-export-a-coinmarketcap_api_key-from-coinmarketcap) on how to export your `COINMARKETCAP_API_KEY`
+  - `COINMARKETCAP_API_KEY`: This is mainly for the `hardhat-gas-report` pluggin so this is optional. If you want to play with `hardhat-gas-report` pluggin, first go to `hardhat.config.ts`, toggle the `gasReporter.enabled` to true. Then see [Helpers.COINMARKETCAP_API_KEY](https://github.com/syns-platform/contracts#3-how-to-export-a-coinmarketcap_api_key-from-coinmarketcap) on how to export your `COINMARKETCAP_API_KEY` (deprecated)
 
   #### 2. Get testnet `MUMBAI MATIC`
 
