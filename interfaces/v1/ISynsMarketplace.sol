@@ -13,10 +13,7 @@ pragma solidity ^0.8.11;
 import "@thirdweb-dev/contracts/interfaces/IThirdwebContract.sol";
 import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
 
-/**
- *  The `ISwylMarketplace` interface implements the Thirdweb/IMarketplace.
- */
-interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
+interface ISynsMarketplace is IThirdwebContract, IPlatformFee {
     //  ==========  Enumerables    ==========
 
     /// @notice Type of the tokens that can be listed for sale.
@@ -137,7 +134,7 @@ interface ISwylMarketplace is IThirdwebContract, IPlatformFee {
     event ListingRemoved(uint256 indexed listingId, address indexed listingCreator);
 
     /// @dev Emitted when a listing being paid out
-    event ListingPaidOutInformation(address royaltyRecipient, uint256 royaltyAmount ,uint256 SwylServiceFeeCut);
+    event ListingPaidOutInformation(address royaltyRecipient, uint256 royaltyAmount ,uint256 SynsServiceFeeCut);
 
     /**
      * @dev Emitted when a buyer buys from a direct listing, or a lister accepts some
