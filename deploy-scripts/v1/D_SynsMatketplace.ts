@@ -9,8 +9,8 @@
 import { ethers } from 'hardhat';
 import {
   NAVTIVE_TOKEN_WRAPPER,
-  SWYL_NFT_SERVICE_RECIPIENT,
-  SWYL_NFT_DEFAULT_PLATOFRM_FREE_BPS,
+  SYNS_NFT_SERVICE_RECIPIENT,
+  SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS,
 } from '../../utils/constants';
 import { exportArtifactsToClient } from '../../utils/exportArtifactsToClient';
 
@@ -24,8 +24,8 @@ const D_SynsMatketplace = async () => {
   // asyncly deploy SynsMarketplace SC
   const synslMarketplace = await SynsMarketplace.deploy(
     NAVTIVE_TOKEN_WRAPPER,
-    SWYL_NFT_SERVICE_RECIPIENT,
-    SWYL_NFT_DEFAULT_PLATOFRM_FREE_BPS
+    SYNS_NFT_SERVICE_RECIPIENT,
+    SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS
   );
   await synslMarketplace.deployed();
   console.log(

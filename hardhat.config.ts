@@ -16,8 +16,6 @@ import 'dotenv/config';
 const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL;
 const POLYGON_SCAN_API_KEY = process.env.POLYGON_SCAN_API_KEY;
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL;
-const ETHER_SCAN_API_KEY = process.env.ETHER_SCAN_API_KEY;
-const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
 const SWYL_DEPLOYER_PRIVATE_KEY = process.env.SWYL_DEPLOYER_PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
@@ -46,12 +44,6 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: POLYGON_SCAN_API_KEY as string,
-  },
-  gasReporter: {
-    enabled: false,
-    currency: 'USD',
-    coinmarketcap: COINMARKETCAP_API_KEY,
-    token: 'ETH',
   },
 };
 
