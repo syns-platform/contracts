@@ -5,7 +5,7 @@
 <h4 align="center"></h4>
 </p>
 
-<h5 align="center"> 🏵️ The platform is currently open for beta testing at https://swyl.vercel.app </h5>
+<h5 align="center"> 🏵️ The platform is currently open for beta testing at https://syns.vercel.app </h5>
 
 ## Overview
 
@@ -19,7 +19,7 @@
 
 * [SynsDonation](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylDonation.sol) - allows users to make donations to other users using any type of cryptocurrency. All transactions are transparently recorded on the blockchain for full transparency.
 
-* [SynsMarketPlace](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SYNS. `SwylMarketplace` is able to:
+* [SynsMarketPlace](https://github.com/syns-platform/contracts/blob/main/contracts/v1/SwylMarketplace.sol) - combination of various safe, gas-optimizing, and well-tested features from the [Thirdweb Marketplace](https://github.com/thirdweb-dev/contracts/blob/main/contracts/marketplace/Marketplace.sol) and a range of complex custom logic developed by SYNS. `SynsMarketplace` is able to:
 
   - Enable token owners to create, update, and cancel NFT listings for sale on the blockchain
 
@@ -107,13 +107,13 @@ make verify
 
 ###### 5.2 Using yarn + hardhat
 
-5.2.a. verify SwylClub Smart Contract
+5.2.a. verify SynsClub Smart Contract
 
 ```
 yarn hardhat verify --network mumbai ${SYNSCLUB_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
 ```
 
-5.2.b. verify SwylDonation Smart Contract
+5.2.b. verify SynsDonation Smart Contract
 
 ```
 yarn hardhat verify --network mumbai ${SYNSDONATION_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
