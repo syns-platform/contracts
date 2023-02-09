@@ -31,12 +31,12 @@ import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
 import "@thirdweb-dev/contracts/lib/FeeType.sol";
 
 //  ==========  Internal imports    ==========
-import { ISwylMarketplace } from "../../interfaces/v1/ISwylMarketplace.sol";
+import { ISynsMarketplace } from "../../interfaces/v1/ISynsMarketplace.sol";
 
 
-contract SwylMarketplace is 
+contract SynsMarketplace is 
     Initializable,
-    ISwylMarketplace,
+    ISynsMarketplace,
     ReentrancyGuardUpgradeable,
     ERC2771ContextUpgradeable,
     MulticallUpgradeable,
@@ -50,7 +50,7 @@ contract SwylMarketplace is
     //////////////////////////////////////////////////////////////*/
 
     /// @notice module level info
-    bytes32 private constant MODULE_TYPE = bytes32("Swyl-Marketplace");
+    bytes32 private constant MODULE_TYPE = bytes32("Syns-Marketplace");
     uint256 private constant VERSION = 1;
 
     /// @dev Contract level metadata.
@@ -60,10 +60,10 @@ contract SwylMarketplace is
     uint64 public constant MAX_BPS = 10_000;
 
      /// @dev The address that receives all platform fees from all sales.
-    address private swylServiceFeeRecipient;
+    address private synsServiceFeeRecipient;
 
     /// @dev The % of primary sales collected as platform fees.
-    uint64 private swylServiceFeeBps;
+    uint64 private synsServiceFeeBps;
 
     /// @dev Only lister role holders can create listings, when listings are restricted by lister address.
     bytes32 public constant LISTER_ROLE = keccak256("LISTER_ROLE");
@@ -124,8 +124,8 @@ contract SwylMarketplace is
     */ 
     constructor(
         address _nativeTokenWrapper, 
-        address _platformFeeRecipient, // swylServiceFeeRecipient
-        uint256 _platformFeeBps //swylServiceFeeBps
+        address _platformFeeRecipient, // synsServiceFeeRecipient
+        uint256 _platformFeeBps //synsServiceFeeBps
     ) initializer {
         // Initialize inherited contracts
         __ReentrancyGuard_init(); // block malicious reentrant/nested calls
@@ -134,11 +134,11 @@ contract SwylMarketplace is
         nativeTokenWrapper = _nativeTokenWrapper;
 
         // set platform admin/contract's state info
-        swylServiceFeeRecipient = _platformFeeRecipient;
-        swylServiceFeeBps = uint64(_platformFeeBps);
+        synsServiceFeeRecipient = _platformFeeRecipient;
+        synsServiceFeeBps = uint64(_platformFeeBps);
 
         // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account
         _setupRole(LISTER_ROLE, address(0));
         _setupRole(ASSET_ROLE, address(0)); 
     }
@@ -153,11 +153,11 @@ contract SwylMarketplace is
     *           - Recipient - a contract that can securely accept meta-transactions through a Trusted Forwarder by being compliant with this standard.
     */
     function initialize(
-        address _defaultAdmin, // original deployer i.e. Swyl Service account
+        address _defaultAdmin, // original deployer i.e. Syns Service account
         string memory _contrtactURI, // contract level URI
         address[] memory _trustedForwarders,
-        address _platformFeeRecipient, // swylServiceFeeRecipient
-        uint256 _platformFeeBps //swylServiceFeeBps
+        address _platformFeeRecipient, // synsServiceFeeRecipient
+        uint256 _platformFeeBps //synsServiceFeeBps
     ) external initializer {
         // Initialize inherited contracts
         __ReentrancyGuard_init(); // block malicious reentrant/nested calls
@@ -165,11 +165,11 @@ contract SwylMarketplace is
 
         // set platform admin/contract's state info
         contractURI = _contrtactURI;
-        swylServiceFeeRecipient = _platformFeeRecipient;
-        swylServiceFeeBps = uint64(_platformFeeBps);
+        synsServiceFeeRecipient = _platformFeeRecipient;
+        synsServiceFeeBps = uint64(_platformFeeBps);
 
         // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account in this case
+        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account in this case
         _setupRole(LISTER_ROLE, address(0)); // grant LISTER_ROLE to address 0x000
         _setupRole(ASSET_ROLE, address(0)); // grant ASSET_ROLE to address 0x000
     }
@@ -213,7 +213,7 @@ contract SwylMarketplace is
     * @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
     */
     function onERC1155Received(
-        address, // operator    - The address which initiated the transfer, i.e. SwylMarketplace in this case
+        address, // operator    - The address which initiated the transfer, i.e. SynsMarketplace in this case
         address, // from        - The address which previously owned the token
         uint256, // id          - The ID of the token being transferred
         uint256, // value       - The amount of tokens being transferred
@@ -234,7 +234,7 @@ contract SwylMarketplace is
     * @return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` if transfer is allowed
     */
     function onERC1155BatchReceived(
-        address, // operator            - The address which initiated the batch transfer (i.e. msg.sender), i.e. SwylMarketplace in this case
+        address, // operator            - The address which initiated the batch transfer (i.e. msg.sender), i.e. SynsMarketplace in this case
         address, // from                - The address which previously owned the token
         uint256[] memory, // ids        - An array containing ids of each token being transferred (order and length must match values array)
         uint256[] memory, // values     - An array containing amounts of each token being transferred (order and length must match ids array)
@@ -254,7 +254,7 @@ contract SwylMarketplace is
     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
     */
     function onERC721Received(
-        address, // operator        - The address which initiated the batch transfer (i.e. msg.sender), i.e. SwylMarketplace in this case
+        address, // operator        - The address which initiated the batch transfer (i.e. msg.sender), i.e. SynsMarketplace in this case
         address, // from            - The address which previously owned the token
         uint256, // tokenId         - The ID of the token being transferred
         bytes calldata // data      - Additional data with no specified format
@@ -292,7 +292,7 @@ contract SwylMarketplace is
     /**
     * @dev Lets a token owner create an item to list on the marketplace (listing).
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
     */ 
     function createListing(DirectListingParameters memory _param) external override {
 
@@ -323,7 +323,7 @@ contract SwylMarketplace is
         validateOwnershipAndApproval(tokenOwner, _param.assetContract, _param.tokenId, tokenAmountToList, listTokenType);
 
 
-        // check if an NFT has already been listed on Swyl's platform -- only applicable for ERC1155 NFTs
+        // check if an NFT has already been listed on Syns's platform -- only applicable for ERC1155 NFTs
         (
             bool isListed, 
             uint256 existingListingId
@@ -384,9 +384,9 @@ contract SwylMarketplace is
 
 
     /**
-    * @dev Lets a listing creator update the listing's metadata. More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * @dev Lets a listing creator update the listing's metadata. More info can be found in interfaces/v1/ISynsMarketplace.sol
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
     */
     function updateListing(
         uint256 _listingId, 
@@ -445,7 +445,7 @@ contract SwylMarketplace is
     /**
     * @dev Lets a listing creator cancel a listing.
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
     */
     function cancelListing(uint256 _listingId) external override onlyListingOwner(_listingId){
         // delete from totalListingItems
@@ -463,7 +463,7 @@ contract SwylMarketplace is
     /**
     * @dev Lets someone buy a given quantity of tokens from a direct listing by paying the price 
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
     */
     function buy(
         uint256 _listingId, 
@@ -534,7 +534,7 @@ contract SwylMarketplace is
         );
 
         /// @dev transfer currency
-        ///     (1) to SwylServiceFeeRecipient
+        ///     (1) to SynsServiceFeeRecipient
         ///     (2) to original creator (royaltyRecipient)
         ///     (3) to token owner
         payout(
@@ -568,8 +568,8 @@ contract SwylMarketplace is
     * @notice v2.0 features
     * @dev Lets someone make an offer to an existing direct listing
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
-    * NOTE Coming in SwylMarketplace v2
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
+    * NOTE Coming in SynsMarketplace v2
     */
     function offer(
         uint256 _listingId, 
@@ -583,8 +583,8 @@ contract SwylMarketplace is
     * @notice v2.0 features
     * @dev Lets a listing's creator accept an offer to their direct listing
     *
-    * NOTE More info can be found in interfaces/v1/ISwylMarketplace.sol
-    * NOTE Coming in SwylMarketplace v2
+    * NOTE More info can be found in interfaces/v1/ISynsMarketplace.sol
+    * NOTE Coming in SynsMarketplace v2
     */
     function acceptOffer(
         uint256 _listingId, 
@@ -727,7 +727,7 @@ contract SwylMarketplace is
 
 
     /**
-    *  @dev validate that `_tokenOwner` owns and has approved SwylMarketplace to transfer NFTs
+    *  @dev validate that `_tokenOwner` owns and has approved SynsMarketplace to transfer NFTs
     *
     *  @param _tokenOwner           address - the owner of the token being validated
     *
@@ -747,19 +747,19 @@ contract SwylMarketplace is
         TokenType _tokenType
     ) internal view 
     {
-        // get SwylMarketplace's address
-        address SwylMarketplaceAddress = address(this);
+        // get SynsMarketplace's address
+        address SynsMarketplaceAddress = address(this);
         bool isValid;
 
         if (_tokenType == TokenType.ERC1155) {
             isValid = 
                 IERC1155Upgradeable(_assetContract).balanceOf(_tokenOwner, _tokenId) >= _quantity && // check if owner has enough balance to list
-                IERC1155Upgradeable(_assetContract).isApprovedForAll(_tokenOwner, SwylMarketplaceAddress); // check if owner approved SwylMarketplaceAddress to list their NFTs
+                IERC1155Upgradeable(_assetContract).isApprovedForAll(_tokenOwner, SynsMarketplaceAddress); // check if owner approved SynsMarketplaceAddress to list their NFTs
         } else if (_tokenType == TokenType.ERC721) {
             isValid = 
                 IERC721Upgradeable(_assetContract).ownerOf(_tokenId) == _tokenOwner && // check if the _tokenOwner owns the token
-                (IERC721Upgradeable(_assetContract).getApproved(_tokenId) == SwylMarketplaceAddress || // check if SwylMarkplace is appeared in token's approve list
-                IERC721Upgradeable(_assetContract).isApprovedForAll(_tokenOwner, SwylMarketplaceAddress)); // check if _tokenOwner approves SwylMarketplace
+                (IERC721Upgradeable(_assetContract).getApproved(_tokenId) == SynsMarketplaceAddress || // check if SynsMarkplace is appeared in token's approve list
+                IERC721Upgradeable(_assetContract).isApprovedForAll(_tokenOwner, SynsMarketplaceAddress)); // check if _tokenOwner approves SynsMarketplace
         }
         require(isValid, "!INVALID OWNERSHIP AND APPROVAL");
     }
@@ -820,7 +820,7 @@ contract SwylMarketplace is
     *  @param _currencyAmountToCheckAgainst         uint256 - the total currency amount to check
     *
     *  NOTE Openzepplin/IERC20Upgradeable - allowance api returns the remaining number of tokens 
-    *                                       that spender (i.e. SwylMarketplace address) will be allowed to spend 
+    *                                       that spender (i.e. SynsMarketplace address) will be allowed to spend 
     *                                       on behalf of owner (i.e. _buyer) through transferFrom. This is zero by default.
     */
     function validateERC20BalAndAllowance(
@@ -856,7 +856,7 @@ contract SwylMarketplace is
         Listing memory _listing
     ) internal {
         // calculate platformFeeCut
-        uint256 platformFeeCut = (_totalPayoutAmount * swylServiceFeeBps) / MAX_BPS;
+        uint256 platformFeeCut = (_totalPayoutAmount * synsServiceFeeBps) / MAX_BPS;
 
         // royalty info
         uint256 royaltyCut;
@@ -889,11 +889,11 @@ contract SwylMarketplace is
         // Get nativeTokenWrapper address
         address _nativeTokenWrapper = nativeTokenWrapper;
 
-        // Distribute price to SwylServiceFeeRecipient account
+        // Distribute price to SynsServiceFeeRecipient account
         CurrencyTransferLib.transferCurrencyWithWrapper(
             _currencyToUse, 
             _payer, 
-            swylServiceFeeRecipient, 
+            synsServiceFeeRecipient, 
             platformFeeCut,
             _nativeTokenWrapper
         );
@@ -953,7 +953,7 @@ contract SwylMarketplace is
             // Transfer the token to the `_to` address
             IERC721Upgradeable(_listing.assetContract).safeTransferFrom(_from, _to, _listing.tokenId, "");
 
-            // Delete the listing off from SwylMarketplace
+            // Delete the listing off from SynsMarketplace
             delete totalListingItems[_listing.listingId];
         }
     }
@@ -1017,7 +1017,7 @@ contract SwylMarketplace is
 
     /// @dev Returns the platform fee recipient and bps
     function getPlatformFeeInfo() external view returns (address, uint16) {
-        return (swylServiceFeeRecipient, uint16(swylServiceFeeBps));
+        return (synsServiceFeeRecipient, uint16(synsServiceFeeBps));
     }
 
     /// @dev Returns the ERC1155 token's balance/quantity that an owner has left to create the listing ()
@@ -1056,8 +1056,8 @@ contract SwylMarketplace is
         uint256 _platformFeeBps
     ) external onlyRole(DEFAULT_ADMIN_ROLE){
         require(_platformFeeBps <= MAX_BPS, "!INVALID BPS - must be less than or equal to 10000.");
-        swylServiceFeeBps = uint64 (_platformFeeBps);
-        swylServiceFeeRecipient = _platformFeeRecipient;
+        synsServiceFeeBps = uint64 (_platformFeeBps);
+        synsServiceFeeRecipient = _platformFeeRecipient;
 
         emit PlatformFeeInfoUpdated(_platformFeeRecipient, _platformFeeBps);
     }
