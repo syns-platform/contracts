@@ -18,11 +18,11 @@ import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgrad
 import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
 
 //  ==========  Internal imports    ==========
-import { ISwylClub } from "../../interfaces/v1/ISwylClub.sol";
+import { ISynsClub } from "../../interfaces/v1/ISynsClub.sol";
 
-contract SwylClub is
+contract SynsClub is
     Initializable,
-    ISwylClub,
+    ISynsClub,
     ERC2771ContextUpgradeable,
     ReentrancyGuardUpgradeable,
     AccessControlEnumerableUpgradeable
@@ -32,7 +32,7 @@ contract SwylClub is
     //////////////////////////////////////////////////////////////*/
 
     /// @notice module level info
-    bytes32 private constant MODULE_TYPE = bytes32("Swyl-Club");
+    bytes32 private constant MODULE_TYPE = bytes32("Syns-Club");
     uint256 private constant VERSION = 1;
 
     /// @dev Contract level metadata.
@@ -116,7 +116,7 @@ contract SwylClub is
 
 
          // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender()); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account
         _setupRole(CLUB_OWNER_ROLE, address(0));
     }
 
@@ -130,7 +130,7 @@ contract SwylClub is
     *           - Recipient - a contract that can securely accept meta-transactions through a Trusted Forwarder by being compliant with this standard.
     */
     function initialize(
-        address _defaultAdmin, // original deployer i.e. Swyl Service account
+        address _defaultAdmin, // original deployer i.e. Syns Service account
         string memory _contrtactURI, // contract level URI
         address[] memory _trustedForwarders
     ) external initializer {
@@ -142,7 +142,7 @@ contract SwylClub is
         contractURI = _contrtactURI;
 
         // grant roles
-        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Swyl Service account in this case
+        _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin); // grant DEFAULT_ADMIN_ROLE to deployer, i.e. Syns Service account in this case
         _setupRole(CLUB_OWNER_ROLE, address(0)); // grant LISTER_ROLE to address 0x000
     }
 
@@ -192,7 +192,7 @@ contract SwylClub is
         uint256 currentId = totalNumberClubs;
 
         // start a new Club
-        /// @notice see struct `ISwylClub/Club` for more info
+        /// @notice see struct `ISynsClub/Club` for more info
         Club memory newClub = Club({
             clubId: currentId,
             clubOwner: _msgSender(),
@@ -218,7 +218,7 @@ contract SwylClub is
     * @dev Create a new Tier struct and add it to corresponding Club
     *
     * @param _param     AddTierParam - the parameter that governs the tier to be created.
-    *                                  See struct `ISwylClub/AddTierParam` for more info.
+    *                                  See struct `ISynsClub/AddTierParam` for more info.
     */
     function addTier(AddTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId){
         // param checks
@@ -231,7 +231,7 @@ contract SwylClub is
 
 
         // initialize newTier struct
-        /// @notice see struct `ISwylClub/Tier` for more info
+        /// @notice see struct `ISynsClub/Tier` for more info
         Tier memory newTier = Tier({
             tierId: currentTierId,
             tierFee: _param.tierFee,
@@ -256,7 +256,7 @@ contract SwylClub is
     * @notice Lets a Club's owner update a Tier
     *
     * @param _param     UpdateTierParam - the parameter that governs the tier to be created.
-    *                                  See struct `ISwylClub/UpdateTierParam` for more details.
+    *                                  See struct `ISynsClub/UpdateTierParam` for more details.
     */
     function updateTier(UpdateTierParam memory _param) external override onlyClubOwner(_param.clubId) onlyClubOwnerRole() onlyExistingClub(_param.clubId) {
         // param checks
@@ -332,7 +332,7 @@ contract SwylClub is
     * @notice Lets an account subscribe to a Tier
     *
     * @param _param     SubscriotionAPIParam - the parameter that governs a subscription to be made.
-    *                                          See struct `ISwylClub/SubscriptionAPIParam` for more details.
+    *                                          See struct `ISynsClub/SubscriptionAPIParam` for more details.
     */
     function subsribe(SubscribeParam memory _param) external payable override nonReentrant onlyExistingClub(_param.clubId){
         // check if the caller has already subscribed and an an active member
@@ -397,7 +397,7 @@ contract SwylClub is
             uint256 currentSubscriptionId = subscriptions.length;
 
             // init newSubscription
-            /// @notice see struct `ISwylClub/Subscription` for more info 
+            /// @notice see struct `ISynsClub/Subscription` for more info 
             Subscription memory newSubscription = Subscription({
                 subscriptionId: currentSubscriptionId,
                 clubId: _param.clubId,
@@ -486,7 +486,7 @@ contract SwylClub is
     * @dev Lets a subscriber pays the Tier fee
     *
     * @param _param     MonthlyTierFeeParam - the parameter that governs the monthly tier fee payment.
-    *                                         See struct `ISwylClub/MonthlyTierFeeParam` for more info
+    *                                         See struct `ISynsClub/MonthlyTierFeeParam` for more info
     */
     function payMonthlyTierFee(MonthlyTierFeeParam memory _param) external payable nonReentrant onlyExistingClub(_param.clubId) {
         // check if _msgSender() has already subscribed
