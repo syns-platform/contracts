@@ -38,7 +38,7 @@ contract SynsERC1155 is ERC1155Base, PermissionsEnumerable {
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC1155Base("Support Who You Love", "SWYL1155"){
+    constructor() ERC1155Base("Spark Your Noble Story", "SYNS1155"){
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }

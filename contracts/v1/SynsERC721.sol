@@ -58,7 +58,7 @@ contract SynsERC721 is ERC721URIStorage, ERC721Royalty, AccessControl {
     /*//////////////////////////////////////////////////////////////
                         Constructor
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC721("Support Who You Love", "SWYL721") {
+    constructor() ERC721("Spark Your Noble Story", "SYNS721") {
         // grant admin role to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }

@@ -52,7 +52,7 @@ contract ERC1155Base is ERC1155, ContractMetadata, Ownable, Royalty, Multicall, 
                             Constructor
     //////////////////////////////////////////////////////////////*/
 
-    /**  @notice Already been tweaked by SWYL */
+    /**  @notice Already been tweaked by SYNS */
     constructor(
         string memory _name,
         string memory _symbol
@@ -81,7 +81,7 @@ contract ERC1155Base is ERC1155, ContractMetadata, Ownable, Royalty, Multicall, 
     //////////////////////////////////////////////////////////////*/
 
     /**
-     *  @notice          Already been tweaked by SWYL - open to everyone to mint NFTs in this contract
+     *  @notice          Already been tweaked by SYNS - open to everyone to mint NFTs in this contract
      *  @dev             If `_tokenId == type(uint256).max` a new NFT at tokenId `nextTokenIdToMint` is minted. If the given
      *                     `tokenId < nextTokenIdToMint`, then additional supply of an existing NFT is being minted.
      *
@@ -112,7 +112,7 @@ contract ERC1155Base is ERC1155, ContractMetadata, Ownable, Royalty, Multicall, 
     }
 
     /**
-     *  @notice          Already been tweaked by SWYL - open to everyone to mint NFTs in this contract
+     *  @notice          Already been tweaked by SYNS - open to everyone to mint NFTs in this contract
      *  @dev             If `_tokenIds[i] == type(uint256).max` a new NFT at tokenId `nextTokenIdToMint` is minted. If the given
      *                   `tokenIds[i] < nextTokenIdToMint`, then additional supply of an existing NFT is minted.
      *                   The metadata for each new NFT is stored at `baseURI/{tokenID of NFT}`
