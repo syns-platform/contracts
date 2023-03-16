@@ -7,6 +7,11 @@
 
 <h5 align="center"> 🏵️ The platform is currently open for beta testing at https://syns.vercel.app </h5>
 
+<div align="center">
+
+![](https://img.shields.io/badge/Solidity-0.8.11-blue?style=flat-square&logo=solidity)
+</div>
+
 ## Overview
 
 **_SYNS/contracts_**, a suite of smart contracts, written in [Solidity](https://soliditylang.org/), that are deployed on the [Polygon network](https://polygon.technology/matic-token/). This collection of smart contracts serves as the backbone for the platform's decentralized functionality and enables secure, transparent, and immutable transactions.
