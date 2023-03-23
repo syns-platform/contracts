@@ -9,7 +9,13 @@
 
 <div align="center">
 
+![](https://img.shields.io/badge/TypeScript-4.5.0-blue?style=flat-square&logo=typescript)
 ![](https://img.shields.io/badge/Solidity-0.8.11-blue?style=flat-square&logo=solidity)
+![](https://img.shields.io/badge/OpenZeppelin-4.8.0-blue?style=flat-square&logo=openzeppelin)
+![](https://img.shields.io/badge/Hardhat-2.12.7-blue?style=flat-square&logo=hardhat)
+![](https://img.shields.io/badge/Ethers-5.4.7-blue?style=flat-square&logo=ethersjs)
+![](https://img.shields.io/badge/Mocha-9.1.0-blue?style=flat-square&logo=mocha)
+
 </div>
 
 ## Overview
