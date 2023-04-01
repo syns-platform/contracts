@@ -5,7 +5,7 @@
 <h4 align="center"></h4>
 </p>
 
-<h5 align="center"> 🏵️ The platform is currently open for beta testing at https://syns.vercel.app </h5>
+<h5 align="center"> 🏵️ The platform is currently open for beta testing at <a href="https://syns.vercel.app" target="_blank"> https://syns.vercel.app </a> </h5>
 
 <div align="center">
 
