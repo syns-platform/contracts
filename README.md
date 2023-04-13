@@ -1,11 +1,11 @@
 <p align="center">
 <br />
 <a href="https://github.com/syns-platform"><img src="https://github.com/syns-platform/Syns-Platform/blob/main/brandings/main/Syns_Official_Main_Logo_V3.svg?raw=true" width="150" alt=""/>
-<h1 align="center">SYNS - Spark Your Noble Story - v2.0 </h1>
-<h4 align="center"></h4>
+<h1 align="center">Syns Platform | Spark Your Noble Story </h1>
+<h4 align="center"> ✨ The platform is currently open for beta testing at <a href="https://syns-platform.com">https://syns-platform.com</a> ✨</h4>
+<h5 align="center"> 🪜 Work In Progress... 🪜</h5>
 </p>
 
-<h5 align="center"> 🏵️ The platform is currently open for beta testing at <a href="https://syns.vercel.app" target="_blank"> https://syns.vercel.app </a> </h5>
 
 <div align="center">
 
