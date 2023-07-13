@@ -1,4 +1,4 @@
-YARN_HARDHAT_BASE=yarn hardhat
+PNPM_HARDHAT_BASE=pnpm hardhat
 DEPLOY_SCRIPT_PATH=./deploy-scripts/v1/
 NAVTIVE_TOKEN_WRAPPER=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 SYNS_NFT_NAME=Spark-Your-Noble-Story
@@ -34,45 +34,45 @@ clean:
 		@echo Purging ./node_modules...
 		rm -rf ./node_modules
 		@echo Reinstalling dependencies modules
-		yarn
+		pnpm i
 
 ## COMPILE SCs
 .PHONY: compile
 compile:
-		${YARN_HARDHAT_BASE} compile
+		${PNPM_HARDHAT_BASE} compile
 
 ## DEPLOY SCs
 mumbai-deploy: 
-		$(YARN_HARDHAT_BASE) run $(DEPLOY_SCRIPT_PATH) --network $(MUMBAI_NETWORK)
+		$(PNPM_HARDHAT_BASE) run $(DEPLOY_SCRIPT_PATH) --network $(MUMBAI_NETWORK)
 goerli-deploy: 
-		$(YARN_HARDHAT_BASE) run $(DEPLOY_SCRIPT_PATH) --network $(GOERLI_NETWORK)
+		$(PNPM_HARDHAT_BASE) run $(DEPLOY_SCRIPT_PATH) --network $(GOERLI_NETWORK)
 
 
 ## VERIFY SCs
 
 ### MUMBAI
 mumbai-verify-club: 
-		$(YARN_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_CLUB_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_CLUB_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
 mumbai-verify-donation: 
-		$(YARN_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_DONATION_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_DONATION_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
 mumbai-verify-721: 
-		$(YARN_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_721_SC_ADDRESS) --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_721_SC_ADDRESS) --show-stack-traces
 mumbai-verify-1155: 
-		$(YARN_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_1155_SC_ADDRESS) --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_1155_SC_ADDRESS) --show-stack-traces
 mumbai-verify-marketplace: 
-		$(YARN_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_MARKETPLACE_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} ${SYNS_NFT_SERVICE_RECIPIENT} ${SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(MUMBAI_NETWORK) $(MUMBAI_MARKETPLACE_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} ${SYNS_NFT_SERVICE_RECIPIENT} ${SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS} --show-stack-traces
 
 ### GOERLI
 goerli-verify-club: 
-		$(YARN_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_CLUB_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_CLUB_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
 goerli-verify-donation: 
-		$(YARN_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_DONATION_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_DONATION_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} --show-stack-traces
 goerli-verify-721: 
-		$(YARN_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_721_SC_ADDRESS) --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_721_SC_ADDRESS) --show-stack-traces
 goerli-verify-1155: 
-		$(YARN_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_1155_SC_ADDRESS) --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_1155_SC_ADDRESS) --show-stack-traces
 goerli-verify-marketplace: 
-		$(YARN_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_MARKETPLACE_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} ${SYNS_NFT_SERVICE_RECIPIENT} ${SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS} --show-stack-traces
+		$(PNPM_HARDHAT_BASE) verify --network $(GOERLI_NETWORK) $(GOERLI_MARKETPLACE_SC_ADDRESS) ${NAVTIVE_TOKEN_WRAPPER} ${SYNS_NFT_SERVICE_RECIPIENT} ${SYNS_NFT_DEFAULT_PLATOFRM_FREE_BPS} --show-stack-traces
 
 ### verify all
 mumbai-verify: mumbai-verify-club mumbai-verify-donation mumbai-verify-marketplace mumbai-verify-721 mumbai-verify-1155
