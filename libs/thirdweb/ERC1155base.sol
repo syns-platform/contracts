@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
-import { ERC1155 } from "@thirdweb-dev/contracts/eip/ERC1155.sol";
+import { ERC1155 } from "./ERC1155.sol";  
 
 import "@thirdweb-dev/contracts/extension/ContractMetadata.sol";
 import "@thirdweb-dev/contracts/extension/Multicall.sol";
