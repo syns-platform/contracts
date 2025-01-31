@@ -6,7 +6,6 @@
 <h5 align="center"> 🪜 Work In Progress... 🪜</h5>
 </p>
 
-
 <div align="center">
 
 ![](https://img.shields.io/badge/TypeScript-4.5.0-blue?style=flat-square&logo=typescript)
@@ -52,7 +51,7 @@
 
 - [git](https://git-scm.com/)
 - [node.js](https://nodejs.org/en/)
-- [yarn](https://yarnpkg.com/getting-started/install)
+- [pnpm](https://pnpm.io/)
 - [metamask](https://metamask.io/)
 
 ## Quickstart
@@ -60,7 +59,7 @@
 ```
 git clone https://github.com/syns-platform/contracts.git
 cd contracts
-yarn
+pnpm
 ```
 
 ## Running the project
@@ -88,13 +87,13 @@ yarn
 make compile
 ```
 
-###### 3.2 Using yarn + hardhat
+###### 3.2 Using pnpm + hardhat
 
 ```
-yarn hardhat compile
+pnpm hardhat compile
 ```
 
-#### 4. `Deploy` smart contracts to `Mumbai Testnet`
+#### 4. `Deploy` smart contracts to `Hedera Testnet`
 
 ###### 4.1 Using make command + hardhat
 
@@ -102,10 +101,10 @@ yarn hardhat compile
 make deploy
 ```
 
-###### 4.2 Using yarn + hardhat
+###### 4.2 Using pnpm + hardhat
 
 ```
-yarn hardhat run ./deploy-scripts/v1/ --network mumbai
+pnpm hardhat run ./deploy-scripts/v1/ --network hedera_testnet
 ```
 
 #### 5. `Verify` smart contracts on [etherscan](https://goerli.etherscan.io/)
@@ -116,36 +115,36 @@ yarn hardhat run ./deploy-scripts/v1/ --network mumbai
 make verify
 ```
 
-###### 5.2 Using yarn + hardhat
+###### 5.2 Using pnpm + hardhat
 
 5.2.a. verify SynsClub Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SYNSCLUB_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
+pnpm hardhat verify --network hedera_testnet ${SYNSCLUB_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
 ```
 
 5.2.b. verify SynsDonation Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SYNSDONATION_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
+pnpm hardhat verify --network hedera_testnet ${SYNSDONATION_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SYNSERC721_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
+pnpm hardhat verify --network hedera_testnet ${SYNSERC721_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SYNSERC1155_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
+pnpm hardhat verify --network hedera_testnet ${SYNSERC1155_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE}
 ```
 
 5.2.a. verify Club Smart Contract
 
 ```
-yarn hardhat verify --network mumbai ${SYNSMARKETPLACE_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS} ${PLATFORM_FEE_SERVICE_RECIPIENT} ${PLATFORM_FEE_BPS(%)}
+pnpm hardhat verify --network hedera_testnet ${SYNSMARKETPLACE_CONTRACT_ADDRESS_FROM_DEPLOY_PHASE} ${NATIVE_TOKEN_WRAPPER_ADDRESS} ${PLATFORM_FEE_SERVICE_RECIPIENT} ${PLATFORM_FEE_BPS(%)}
 ```
 
 # Helpers

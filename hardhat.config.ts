@@ -12,13 +12,11 @@ import '@nomiclabs/hardhat-etherscan';
 import 'dotenv/config';
 
 /** @notice constants */
-const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL;
-const POLYGON_SCAN_API_KEY = process.env.POLYGON_SCAN_API_KEY;
-const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL;
+const HEDERA_TESTNET_RPC_URL = process.env.HEDERA_TESTNET_RPC_URL;
 const SYNS_DEPLOYER_PRIVATE_KEY = process.env.SYNS_DEPLOYER_PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
-  defaultNetwork: 'goerli',
+  defaultNetwork: 'hedera_testnet',
   solidity: {
     version: '0.8.11',
     settings: {
@@ -30,19 +28,11 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {},
-    mumbai: {
-      url: MUMBAI_RPC_URL,
+    hedera_testnet: {
+      url: HEDERA_TESTNET_RPC_URL,
       accounts: [SYNS_DEPLOYER_PRIVATE_KEY as string],
-      chainId: 80001,
+      chainId: 296,
     },
-    goerli: {
-      url: GOERLI_RPC_URL,
-      accounts: [SYNS_DEPLOYER_PRIVATE_KEY as string],
-      chainId: 5,
-    },
-  },
-  etherscan: {
-    apiKey: POLYGON_SCAN_API_KEY as string,
   },
 };
 
